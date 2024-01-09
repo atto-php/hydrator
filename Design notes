@@ -1,0 +1,40 @@
+Scenarios:
+
+- property is an object
+-- 1o. object represents a collection of other objects
+-- 2o. object is an entity and needs storing in a table
+-- 3o. object is a value object and needs serialising
+-- 4o. object is a value object and needs merging
+-- 5o. object is a value object and needs special handling eg toString; \DateTime::format
+
+- property is an array
+-- 1a. contents are scalar types (including nested arrays) and need serialising
+-- 2a. contents are value objects and need serialising
+-- 3a. contents are entities and need storing in a table
+
+#[SerialisationStrategy('json')] (other options are 'comma delimited' and 'pipe delimited')
+
+-> Handles 1a perfectly.
+
+#[ValueObject('merge')] 'datetime', 'enum', 'json', and 'string' as options
+
+-> merge has additional property "prefix"
+-> datetime has additional property for format
+-> enum requires a backed enum
+
+| style     | extract | hydrate |
+| merge     | extracts properties with hydrator, sets them in the array for the parent object. | hydrates properties with hydrator using the array from the parent object |
+| datetime  | extracts using \DateTime::format | hydrates using \DateTime::createFromFormat |
+| enum      | extract with built ins | hydrate with built ins |
+| json      | extracts properties with hydrator, json_encodes the result | json_decodes the value then hydrates properties with hydrator |
+| string    | extracts using (string) object must implement __toString() | hydrates using new Object() |
+
+-> handles 3o, 4o and 5o
+-> handles 2a in combination with serialisation strategy [default value set serialise => serialise, datetime, string => comma delimited, json => json]
+
+
+#[Entity(parentKeyPrefix: 'parent', 'id' => ['id', 'handle']])]
+
+Objects will always use a hydrator to extract and hydrate
+
+Id of the parent will be added to the extracted array
