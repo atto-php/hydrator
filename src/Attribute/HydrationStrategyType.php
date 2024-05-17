@@ -11,6 +11,7 @@ enum HydrationStrategyType
     case Enum;
     case DateTime;
     case Merge;
+    case Passthrough;
     case Nest;
     case Json;
 
