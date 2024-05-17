@@ -4,17 +4,12 @@ declare(strict_types=1);
 
 namespace Atto\Hydrator\Template\Extract;
 
+use Atto\Hydrator\Attribute\SerializationStrategyType;
+use Atto\Hydrator\Template\ObjectReference;
+
 final class DateTime
 {
-    public function __construct(
-        private readonly string|\Stringable $valueReference,
-    )
-    {
-    }
+    const EXTRACT_FORMAT = '%s->format(\DATE_ATOM)';
 
-    public function __toString(): string
-    {
-
-        return sprintf('%s->format(\DATE_ATOM)', $this->valueReference);
-    }
+    use BasicExtract;
 }

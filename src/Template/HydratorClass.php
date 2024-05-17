@@ -22,7 +22,10 @@ final class HydratorClass
             public function __construct(
                 %s
             ) {
+                $hydrate = $extract = $properties = [];
                 %s
+                $this->hydrateMethods = $hydrateMethods;
+                $this->extractMethods = $extractMethods;
                 $this->instantiator = new \Doctrine\Instantiator\Instantiator();
             }
             
@@ -48,7 +51,7 @@ final class HydratorClass
         EOF;
 
     private const CONSTRUCTOR_CODE = <<<'EOF'
-        $this->%s[%s] = %s
+        $%s[%s] = %s
         EOF;
 
     private const METHOD_CODE = <<<'EOF'
@@ -96,7 +99,7 @@ final class HydratorClass
             $constructorCode .= $subHydratorTemplate;
             $constructorParameters .= sprintf(
                 '%sHydrator $%s,',
-                $subHydrator,
+                ltrim($subHydrator, '\\'),
                 $parameterName
             );
         }

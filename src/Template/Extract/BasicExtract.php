@@ -7,11 +7,11 @@ namespace Atto\Hydrator\Template\Extract;
 use Atto\Hydrator\Attribute\SerializationStrategyType;
 use Atto\Hydrator\Template\ObjectReference;
 
-final class Primitive
+trait BasicExtract
 {
     const SERIALISE = [
-        SerializationStrategyType::Json->value => 'json_encode(%s)',
-        SerializationStrategyType::CommaDelimited->value => 'implode(\',\', %s)'
+        SerializationStrategyType::Json->value => 'json_encode(array_map(fn($value) => %s, %s))',
+        SerializationStrategyType::CommaDelimited->value => 'implode(\',\', array_map(fn($value) => %s, %s))'
     ];
     const ASSIGNMENT = '$values[\'%1$s\'] = %2$s;' . "\n";
 
@@ -27,7 +27,11 @@ final class Primitive
     public function __toString(): string
     {
         if ($this->serialisationStrategy === null) {
-            return sprintf(self::ASSIGNMENT, $this->propertyName, $this->valueReference);
+            return sprintf(
+                self::ASSIGNMENT,
+                $this->propertyName,
+                sprintf(self::EXTRACT_FORMAT, $this->valueReference)
+            );
         }
 
         return sprintf(
@@ -35,8 +39,7 @@ final class Primitive
             $this->propertyName,
             sprintf(
                 self::SERIALISE[$this->serialisationStrategy->value],
-                $this->valueReference
-                ,
+                sprintf(self::EXTRACT_FORMAT, '$value'),
                 $this->valueReference
             )
         );

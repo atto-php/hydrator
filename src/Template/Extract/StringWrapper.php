@@ -4,16 +4,11 @@ declare(strict_types=1);
 
 namespace Atto\Hydrator\Template\Extract;
 
+use Atto\Hydrator\Attribute\SerializationStrategyType;
+
 final class StringWrapper
 {
-    public function __construct(
-        private readonly string|\Stringable $valueReference
-    )
-    {
-    }
+    const EXTRACT_FORMAT = '(string) %s';
 
-    public function __toString(): string
-    {
-        return sprintf('(string) %s', $this->valueReference);
-    }
+    use BasicExtract;
 }

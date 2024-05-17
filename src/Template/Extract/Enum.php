@@ -4,16 +4,11 @@ declare(strict_types=1);
 
 namespace Atto\Hydrator\Template\Extract;
 
+use Atto\Hydrator\Attribute\SerializationStrategyType;
+
 final class Enum
 {
-    public function __construct(
-        private readonly string|\Stringable $valueReference,
-    )
-    {
-    }
+    const EXTRACT_FORMAT = '%s->value';
 
-    public function __toString(): string
-    {
-        return sprintf('%s->value', $this->valueReference);
-    }
+    use BasicExtract;
 }

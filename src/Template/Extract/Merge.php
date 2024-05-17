@@ -6,15 +6,18 @@ namespace Atto\Hydrator\Template\Extract;
 
 use Atto\Hydrator\Template\ObjectReference;
 
-final class Json
+final class Merge
 {
-    const EXTRACT_FORMAT = '$extract[\%2$s::class](%1$s)';
-    const ASSIGNMENT = '$values[\'%1$s\'] = %2$s;' . "\n";
+    private const EXTRACT_FORMAT = <<<'EOF'
+        foreach ($extract[\%2$s::class](%1$s) as $key => $value) {
+            $values['%3$s' . '_' . $key] = $value;
+        }
+    EOF;
 
     private readonly ObjectReference $valueReference;
 
     public function __construct(
-        private readonly string|\Stringable $propertyName,
+        private readonly string $propertyName,
         private readonly string $className,
     ) {
         $this->valueReference = new ObjectReference($this->propertyName);
@@ -22,10 +25,6 @@ final class Json
 
     public function __toString(): string
     {
-        return sprintf(
-            self::ASSIGNMENT,
-            $this->propertyName,
-            sprintf('json_encode(' . self::EXTRACT_FORMAT . ')', $this->valueReference, $this->className)
-        );
+        return sprintf(self::EXTRACT_FORMAT, $this->valueReference, $this->className, $this->propertyName);
     }
 }

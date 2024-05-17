@@ -7,7 +7,7 @@ namespace Atto\Hydrator\Template;
 final class Closure
 {
     private const CODE = <<<'EOF'
-        \Closure::bind(static function ($object, &$values) use (&$extract, &$hydrate, &$merge, &$unmerge) {
+        \Closure::bind(static function ($object, &$values) use (&$extract, &$hydrate, &$properties) {
             %s}, null, \%s::class);
         EOF;
 

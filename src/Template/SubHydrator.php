@@ -7,34 +7,15 @@ namespace Atto\Hydrator\Template;
 final class SubHydrator
 {
     private const HYDRATE = <<<'EOF'
-        $hydrate[%s::class] = $%s->hydrate(...);
+        $hydrate[%s::class] = $%s->create(...);
     EOF;
 
     private const EXTRACT = <<<'EOF'
         $extract[%s::class] = $%s->extract(...);
     EOF;
 
-    private const MERGE = <<<'EOF'
-        $merge[%s::class] = static function ($prefix, &$data, $object) use ($%2$s) {
-            $extractedData = $%2$s->extract($object);
-            foreach ($extractedData as $key => $value) {
-                $data[$prefix . '_' . $key] = $value;
-            }
-        };        
-    EOF;
-
-    private const UNMERGE = <<<'EOF'
-        $unmerge[%s::class] = static function ($prefix, &$data) use ($%2$s) {
-            $hydrateData = [];
-            foreach ($%2$s::PROPERTIES as $key) {
-                $dataKey = $prefix . '_' . $key;
-                if (array_key_exists($dataKey, $data)) {
-                    $hydrateData[$key] = $data[$dataKey];
-                }
-            }
-
-            return $%2$s->create($hydrateData);
-        };       
+    private const PROPERTIES = <<<'EOF'
+        $properties[%s::class] = $%2$s::PROPERTIES;       
     EOF;
 
     public function __construct(
@@ -46,11 +27,10 @@ final class SubHydrator
     public function __toString(): string
     {
         return sprintf(
-            "%s\n%s\n%s\n%s\n",
+            "%s\n%s\n%s\n",
             sprintf(self::HYDRATE, $this->className, $this->parameterName),
             sprintf(self::EXTRACT, $this->className, $this->parameterName),
-            sprintf(self::MERGE, $this->className, $this->parameterName),
-            sprintf(self::UNMERGE, $this->className, $this->parameterName),
+            sprintf(self::PROPERTIES, $this->className, $this->parameterName),
         );
     }
 
