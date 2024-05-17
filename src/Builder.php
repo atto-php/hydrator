@@ -15,18 +15,21 @@ use ReflectionClass;
 
 final class Builder
 {
-    public function build(string $class, string $hydratorNamespace = 'Generated'): object
+    public function build(string $class, string $hydratorNamespace = 'Generated', string $commonNamespace = ''): object
     {
         assert(class_exists($class));
 
         $refl = new ReflectionClass($class);
 
+        $hydratorClassName = ClassName::fromFullyQualifiedName($class . 'Hydrator')
+            ->removeNamespacePrefix($commonNamespace)
+            ->addNamespacePrefix($hydratorNamespace);
+
         $extractCode = new Closure($class);
         $hydrateCode = new Closure($class);
         $hydratorClass = new HydratorClass(
-            $class . 'Hydrator',
-            $class,
-            $hydratorNamespace
+            $hydratorClassName,
+            $class
         );
 
         foreach ($refl->getProperties() as $property) {
@@ -79,7 +82,10 @@ final class Builder
             );
 
             if ($hydrationStrategy->requiresSubHydrator()) {
-                $hydratorClass->addSubHydrator('\\' . $typeName);
+                $className = ClassName::fromFullyQualifiedName($typeName);
+                $hydratorName = $className->removeNamespacePrefix($commonNamespace)
+                    ->addNamespacePrefix($hydratorNamespace);
+                $hydratorClass->addSubHydrator($className, $hydratorName);
             }
             $hydratorClass->addProperty($propertyName);
         }

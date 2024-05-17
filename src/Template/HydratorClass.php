@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Atto\Hydrator\Template;
 
+use Atto\Hydrator\ClassName;
+
 final class HydratorClass
 {
     private const CLASS_CODE = <<<'EOF'
@@ -66,19 +68,18 @@ final class HydratorClass
     private array $extractMethods = [];
 
     public function __construct(
-        private readonly string $hydratorClassName,
+        private readonly ClassName $hydratorClassName,
         private readonly string $targetClassName,
-        private string $namespace = 'Generated'
     ) {
     }
 
-    public function addSubHydrator(string $className): void
+    public function addSubHydrator(ClassName $className, ClassName $hydratorName): void
     {
-        if (isset($this->subHydrators[$className])) {
+        if (isset($this->subHydrators[$className->asString()])) {
             return;
         }
 
-        $this->subHydrators[$className] = 'p' . ++$this->parameterCount;
+        $this->subHydrators[$className->asString()] = [$hydratorName, 'p' . ++$this->parameterCount];
     }
 
     public function addHydrateMethod(string|\Stringable $method): void
@@ -94,12 +95,12 @@ final class HydratorClass
     public function __toString(): string
     {
         $constructorParameters = $constructorCode = $hydrateCode = $extractCode = '';
-        foreach ($this->subHydrators as $subHydrator => $parameterName) {
+        foreach ($this->subHydrators as $subHydrator => list($hydratorName, $parameterName)) {
             $subHydratorTemplate = new SubHydrator($subHydrator, $parameterName);
             $constructorCode .= $subHydratorTemplate;
             $constructorParameters .= sprintf(
                 '%sHydrator $%s,',
-                ltrim($subHydrator, '\\'),
+                $hydratorName->asString(),
                 $parameterName
             );
         }
@@ -127,8 +128,8 @@ final class HydratorClass
 
         return sprintf(
             self::CLASS_CODE,
-            $this->namespace,
-            $this->hydratorClassName,
+            $this->hydratorClassName->namespace,
+            $this->hydratorClassName->name,
             $properties,
             $constructorParameters,
             $constructorCode,
