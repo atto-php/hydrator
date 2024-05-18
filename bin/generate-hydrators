@@ -1,0 +1,14 @@
+#!/usr/bin/env php
+<?php
+
+require $_composer_autoload_path ?? __DIR__ . '/../vendor/autoload.php';
+
+use Atto\Hydrator\Command\GenerateHydrators;
+use Symfony\Component\Console\Application;
+
+$application = new Application();
+
+$command = new GenerateHydrators();
+$application->add($command);
+$application->setDefaultCommand($command->getName(), true);
+$application->run();

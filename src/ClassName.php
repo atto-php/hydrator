@@ -17,7 +17,7 @@ final class ClassName
 
     public static function fromFullyQualifiedName(string $className): self
     {
-        $classParts = explode('\\', $className);
+        $classParts = explode('\\', ltrim($className, '\\'));
         $name = array_pop($classParts);
 
         return new self($classParts, $name);

@@ -33,7 +33,7 @@ final class HydratorClass
             
             public function create(array &$data): object
             {
-                $object = $this->instantiator->instantiate(\%s::class);
+                $object = $this->instantiator->instantiate(%s::class);
                 $this->hydrate($data, $object);
                 return $object;
             }
@@ -71,6 +71,16 @@ final class HydratorClass
         private readonly ClassName $hydratorClassName,
         private readonly string $targetClassName,
     ) {
+    }
+
+    public function getHydratorClassName(): ClassName
+    {
+        return $this->hydratorClassName;
+    }
+
+    public function getSubHydrators(): array
+    {
+        return array_keys($this->subHydrators);
     }
 
     public function addSubHydrator(ClassName $className, ClassName $hydratorName): void

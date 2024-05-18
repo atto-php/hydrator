@@ -8,7 +8,7 @@ final class Closure
 {
     private const CODE = <<<'EOF'
         \Closure::bind(static function ($object, &$values) use (&$extract, &$hydrate, &$properties) {
-            %s}, null, \%s::class);
+            %s}, null, %s::class);
         EOF;
 
 

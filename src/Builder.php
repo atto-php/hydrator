@@ -17,6 +17,7 @@ final class Builder
 {
     public function build(string $class, string $hydratorNamespace = 'Generated', string $commonNamespace = ''): object
     {
+        $class = '\\' . ltrim($class, '\\');
         assert(class_exists($class));
 
         $refl = new ReflectionClass($class);
