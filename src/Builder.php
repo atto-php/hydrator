@@ -130,7 +130,7 @@ final class Builder
             return null;
         }
 
-        if (in_array($typeName, ['int', 'string', 'bool', 'array'])) {
+        if (in_array($typeName, ['float', 'int', 'string', 'bool', 'array'])) {
             return HydrationStrategyType::Primitive;
         }
 

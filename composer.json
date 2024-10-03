@@ -16,12 +16,6 @@
     "roave/better-reflection": "^6.25",
     "symfony/console": "^6.4"
   },
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/atto-php/codegen-tools"
-    }
-  ],
   "require-dev": {
     "phpunit/phpunit": "^10.2.0"
   },
