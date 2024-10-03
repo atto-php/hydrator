@@ -9,12 +9,12 @@ use Atto\Hydrator\ClassName;
 final class HydratorClass
 {
     private const CLASS_CODE = <<<'EOF'
-        namespace %s;
+        namespace %1$s;
         
-        final class %s 
+        final class %2$s 
         {
             public const PROPERTIES = [
-                '%s'
+                '%3$s'
             ];
             
             private readonly array $hydrateMethods;
@@ -22,31 +22,31 @@ final class HydratorClass
             private readonly \Doctrine\Instantiator\Instantiator $instantiator;
             
             public function __construct(
-                %s
+                %4$s
             ) {
                 $hydrate = $extract = $properties = [];
-                %s
+                %5$s
                 $this->hydrateMethods = $hydrateMethods;
                 $this->extractMethods = $extractMethods;
                 $this->instantiator = new \Doctrine\Instantiator\Instantiator();
             }
             
-            public function create(array &$data): object
+            public function create(array &$data): %6$s
             {
-                $object = $this->instantiator->instantiate(%s::class);
+                $object = $this->instantiator->instantiate(%6$s::class);
                 $this->hydrate($data, $object);
                 return $object;
             }
             
-            public function hydrate(array &$data, object $object): void
+            public function hydrate(array &$data, %6$s $object): void
             {
-                %s
+                %7$s
             }
             
             public function extract(object $object): array
             {
                 $data = [];
-                %s
+                %8$s
                 return $data;
             }
         }
