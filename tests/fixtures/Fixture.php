@@ -6,7 +6,9 @@ namespace Atto\Hydrator\TestFixtures;
 
 interface Fixture
 {
-    public static function getExampleObject(): Fixture;
 
-    public static function getExpectedArray(): array;
+    /** @return Fixture[] */
+    public static function getExampleObjects(): array;
+
+    public function getExpectedArray(): array;
 }
