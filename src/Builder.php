@@ -76,7 +76,13 @@ final class Builder
             }
 
             $hydrateCode->addPropertyAccessor(
-                $this->hydrateFor($typeName, $propertyName, $hydrationStrategy, $serialisationStrategy)
+                $this->hydrateFor(
+                    $typeName,
+                    $propertyName,
+                    $hydrationStrategy,
+                    $serialisationStrategy,
+                    !($property->getType()->allowsNull() && ! $property->hasDefaultValue()),
+                )
             );
             $extractCode->addPropertyAccessor(
                 $this->extractFor($typeName, $propertyName, $hydrationStrategy, $serialisationStrategy)
@@ -152,9 +158,10 @@ final class Builder
         string|\Stringable $propertyName,
         HydrationStrategyType $hydrationStrategy,
         ?SerializationStrategyType $serialisationStrategy,
+        bool $needsChecks,
     ): string|\Stringable {
         return match ($hydrationStrategy) {
-            HydrationStrategyType::Primitive => new Template\Hydrate\Primitive($propertyName, $serialisationStrategy),
+            HydrationStrategyType::Primitive => new Template\Hydrate\Primitive($propertyName, $serialisationStrategy, $needsChecks),
             HydrationStrategyType::Enum => new Template\Hydrate\Enum($propertyName, $serialisationStrategy, $typeName),
             HydrationStrategyType::DateTime => new Template\Hydrate\DateTime($propertyName, $serialisationStrategy, $typeName),
             HydrationStrategyType::String => new Template\Hydrate\StringWrapper($propertyName, $serialisationStrategy, $typeName),
