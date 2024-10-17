@@ -16,7 +16,12 @@ final class Primitive
         SerializationStrategyType::Json->value => 'json_decode(%s, true)',
         SerializationStrategyType::CommaDelimited->value => 'explode(\',\', %s)'
     ];
+    private const DESERIALISE_WITH_NULL = [
+        SerializationStrategyType::Json->value => 'isset(%1$s) ? json_decode(%1$s, true) : null',
+        SerializationStrategyType::CommaDelimited->value => 'isset(%1$s) ? explode(\',\', %1$s) : null'
+    ];
     private const ASSIGNMENT = '%s = %s;';
+    private const ASSIGNMENT_WITH_NULL = '%s = %s ?? null;';
     private const CHECKS = <<<'EOF'
         if (
             isset(%1$s) ||
@@ -33,6 +38,7 @@ final class Primitive
     public function __construct(
         private readonly string|\Stringable $propertyName,
         private readonly ?SerializationStrategyType $serializationStrategy,
+        private readonly bool $needsChecks,
     ) {
         $this->arrayReference = new ArrayReference($this->propertyName);
         $this->objectReference = new ObjectReference($this->propertyName);
@@ -42,28 +48,32 @@ final class Primitive
     {
         if ($this->serializationStrategy === null) {
             $assignment = sprintf(
-                self::ASSIGNMENT,
+                $this->needsChecks ? self::ASSIGNMENT : self::ASSIGNMENT_WITH_NULL,
                 $this->objectReference,
                 sprintf(self::HYDRATE_FORMAT, $this->arrayReference)
             );
         } else {
             $assignment = sprintf(
-                self::ASSIGNMENT,
+                $this->needsChecks ? self::ASSIGNMENT : self::ASSIGNMENT_WITH_NULL,
                 $this->objectReference,
                 sprintf(
-                    self::DESERIALISE[$this->serializationStrategy->value],
+                    $this->needsChecks ?
+                        self::DESERIALISE[$this->serializationStrategy->value] :
+                        self::DESERIALISE_WITH_NULL[$this->serializationStrategy->value],
                     sprintf(self::HYDRATE_FORMAT, $this->arrayReference),
                     $this->arrayReference
                 ));
         }
 
         return
+        $this->needsChecks ?
             sprintf(
                 self::CHECKS,
                 $this->arrayReference,
                 $this->objectReference,
                 $this->propertyName,
                 $assignment
-            );
+            ) :
+            $assignment;
     }
 }
