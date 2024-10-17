@@ -13,32 +13,39 @@ final class Primitive
         SerializationStrategyType::Json->value => 'json_encode(%s)',
         SerializationStrategyType::CommaDelimited->value => 'implode(\',\', %s)'
     ];
+
     const ASSIGNMENT = '$values[\'%1$s\'] = %2$s;' . "\n";
 
     private readonly ObjectReference $valueReference;
 
     public function __construct(
         private readonly string $propertyName,
-        private readonly ?SerializationStrategyType $serialisationStrategy = null
+        private readonly ?SerializationStrategyType $serialisationStrategy = null,
+        private readonly bool $needsGuard,
     ) {
         $this->valueReference = new ObjectReference($this->propertyName);
     }
 
     public function __toString(): string
     {
-        if ($this->serialisationStrategy === null) {
-            return sprintf(self::ASSIGNMENT, $this->propertyName, $this->valueReference);
-        }
-
         return sprintf(
-            self::ASSIGNMENT,
+            $this->needsGuard ? $this->guard(self::ASSIGNMENT) : self::ASSIGNMENT,
             $this->propertyName,
-            sprintf(
-                self::SERIALISE[$this->serialisationStrategy->value],
-                $this->valueReference
-                ,
-                $this->valueReference
-            )
+            $this->serialisationStrategy === null ?
+                $this->valueReference :
+                sprintf(
+                    self::SERIALISE[$this->serialisationStrategy->value],
+                    $this->valueReference
+                ),
         );
+    }
+
+    private function guard(string $statement): string
+    {
+        return <<<PHP
+            if (isset($this->valueReference) || $this->valueReference === null) {
+                $statement
+            }
+            PHP;
     }
 }
