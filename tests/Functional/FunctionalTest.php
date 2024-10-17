@@ -76,14 +76,14 @@ final class FunctionalTest extends TestCase
             Scalars\FloatsDefault::class,
             Scalars\IntegersDefault::class,
             Scalars\StringsDefault::class,
-            // Scalars\Nullable\Bools::class,
-            // Scalars\Nullable\Floats::class,
-            // Scalars\Nullable\Integers::class,
-            // Scalars\Nullable\Strings::class,
-            // Scalars\Nullable\BoolsDefaultNull::class,
-            // Scalars\Nullable\FloatsDefaultNull::class,
-            // Scalars\Nullable\IntegersDefaultNull::class,
-            // Scalars\Nullable\StringsDefaultNull::class,
+            Scalars\Nullable\Bools::class,
+            Scalars\Nullable\Floats::class,
+            Scalars\Nullable\Integers::class,
+            Scalars\Nullable\Strings::class,
+            Scalars\Nullable\BoolsDefaultNull::class,
+            Scalars\Nullable\FloatsDefaultNull::class,
+            Scalars\Nullable\IntegersDefaultNull::class,
+            Scalars\Nullable\StringsDefaultNull::class,
         ];
 
         foreach ($fixtures as $fixture) {
