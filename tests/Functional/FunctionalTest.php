@@ -62,6 +62,7 @@ final class FunctionalTest extends TestCase
     public static function provideFixtures(): Generator
     {
         $fixtures = [
+            // Arrays\Flat\Nullable\Scalars::class,
             Arrays\Flat\Scalars::class,
             Arrays\Nested\Scalars::class,
             Objects\Flat\DateTimes::class,
@@ -76,14 +77,14 @@ final class FunctionalTest extends TestCase
             Scalars\FloatsDefault::class,
             Scalars\IntegersDefault::class,
             Scalars\StringsDefault::class,
-            // Scalars\Nullable\Bools::class,
-            // Scalars\Nullable\Floats::class,
-            // Scalars\Nullable\Integers::class,
-            // Scalars\Nullable\Strings::class,
-            // Scalars\Nullable\BoolsDefaultNull::class,
-            // Scalars\Nullable\FloatsDefaultNull::class,
-            // Scalars\Nullable\IntegersDefaultNull::class,
-            // Scalars\Nullable\StringsDefaultNull::class,
+            Scalars\Nullable\Bools::class,
+            Scalars\Nullable\Floats::class,
+            Scalars\Nullable\Integers::class,
+            Scalars\Nullable\Strings::class,
+            Scalars\Nullable\BoolsDefaultNull::class,
+            Scalars\Nullable\FloatsDefaultNull::class,
+            Scalars\Nullable\IntegersDefaultNull::class,
+            Scalars\Nullable\StringsDefaultNull::class,
         ];
 
         foreach ($fixtures as $fixture) {
