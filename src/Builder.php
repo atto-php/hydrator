@@ -36,12 +36,12 @@ final class Builder
         foreach ($refl->getProperties() as $property) {
             $type = $property->getType();
 
-            if (!($type instanceof \ReflectionNamedType)) {
-                throw new \Exception('cannot handle multiple type hints');
-            }
-
             if ($type === null) {
                 throw new \Exception('must have a type hint');
+            }
+
+            if (!($type instanceof \ReflectionNamedType)) {
+                throw new \Exception('cannot handle multiple type hints');
             }
 
             $typeName = $type->getName();
@@ -152,7 +152,7 @@ final class Builder
         string|\Stringable $propertyName,
         HydrationStrategyType $hydrationStrategy,
         ?SerializationStrategyType $serialisationStrategy,
-    ): string|\Stringable {
+    ): \Stringable {
         return match ($hydrationStrategy) {
             HydrationStrategyType::Primitive => new Template\Hydrate\Primitive($propertyName, $serialisationStrategy),
             HydrationStrategyType::Enum => new Template\Hydrate\Enum($propertyName, $serialisationStrategy, $typeName),
@@ -170,7 +170,7 @@ final class Builder
         string|\Stringable $propertyName,
         HydrationStrategyType $hydrationStrategy,
         ?SerializationStrategyType $serialisationStrategy,
-    ): string|\Stringable {
+    ): \Stringable {
         return match ($hydrationStrategy) {
             HydrationStrategyType::Primitive => new Template\Extract\Primitive($propertyName, $serialisationStrategy),
             HydrationStrategyType::Enum => new Template\Extract\Enum($propertyName, $serialisationStrategy),
