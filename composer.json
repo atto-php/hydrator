@@ -10,7 +10,7 @@
     }
   ],
   "require": {
-    "php": "^8.2",
+    "php": "~8.2.0 || ~8.3.0",
     "doctrine/instantiator": "^2.0",
     "atto/codegen-tools": "dev-main",
     "roave/better-reflection": "^6.25",
