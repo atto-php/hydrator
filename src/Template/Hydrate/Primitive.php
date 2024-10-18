@@ -53,7 +53,6 @@ final class Primitive
                 sprintf(
                     self::DESERIALISE[$this->serializationStrategy->value],
                     sprintf(self::HYDRATE_FORMAT, $this->arrayReference),
-                    $this->arrayReference
                 ));
         }
 

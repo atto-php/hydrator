@@ -35,9 +35,7 @@ final class Primitive
             $this->propertyName,
             sprintf(
                 self::SERIALISE[$this->serialisationStrategy->value],
-                $this->valueReference
-                ,
-                $this->valueReference
+                $this->valueReference,
             )
         );
     }
