@@ -12,6 +12,7 @@ use Atto\Hydrator\Attribute\HydrationStrategyType;
 use Atto\Hydrator\Template\Closure;
 use Atto\Hydrator\Template\HydratorClass;
 use ReflectionClass;
+use RuntimeException;
 
 final class Builder
 {
@@ -49,10 +50,15 @@ final class Builder
             $serialisationStrategy = null;
 
             if ($typeName === 'array') {
+                $typeName = $this->getSubtype($property) ??
+                    throw new RuntimeException(sprintf(
+                        'subtype must be specified on $%s',
+                        $propertyName,
+                    ));
+
                 $serialisationStrategy = $this->getSerialisationStrategy($property);
                 $hydrationStrategy = $this->getHydrationStrategy($property) ??
-                    $this->typeNameToHydrationStrategy($this->getSubtype($property)) ??
-                    HydrationStrategyType::Primitive
+                    $this->typeNameToHydrationStrategy($typeName)
                 ;
 
                 if ($hydrationStrategy === HydrationStrategyType::Json) {

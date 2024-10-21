@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Atto\Hydrator\TestFixtures\Arrays\Flat\Nullable;
+namespace Atto\Hydrator\TestFixtures\Arrays\Nullable;
 
 use Atto\Hydrator\Attribute\SerializationStrategy;
 use Atto\Hydrator\Attribute\SerializationStrategyType;

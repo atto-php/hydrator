@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Atto\Hydrator\TestFixtures\Objects\Flat;
+namespace Atto\Hydrator\TestFixtures\Objects;
 
 use Atto\Hydrator\Attribute\SerializationStrategy;
 use Atto\Hydrator\Attribute\SerializationStrategyType;
