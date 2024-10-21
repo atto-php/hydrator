@@ -63,6 +63,7 @@ final class FunctionalTest extends TestCase
     {
         $fixtures = [
             // Arrays\Flat\Nullable\Scalars::class,
+            Arrays\Flat\Enums::class,
             Arrays\Flat\Scalars::class,
             Arrays\Nested\Scalars::class,
             Objects\Flat\DateTimes::class,
