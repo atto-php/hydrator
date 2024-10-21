@@ -62,11 +62,16 @@ final class FunctionalTest extends TestCase
     public static function provideFixtures(): Generator
     {
         $fixtures = [
-            // Arrays\Flat\Nullable\Scalars::class,
-            Arrays\Flat\Enums::class,
-            Arrays\Flat\Scalars::class,
-            Arrays\Nested\Scalars::class,
-            Objects\Flat\DateTimes::class,
+            Arrays\Arrays\Scalars::class,
+            Arrays\Enums\StringBacked::class,
+            Arrays\Enums\IntBacked::class,
+            Arrays\Scalars\Bools::class,
+            Arrays\Scalars\Floats::class,
+            Arrays\Scalars\Integers::class,
+            Arrays\Scalars\Strings::class,
+            Objects\DateTimes::class,
+            Objects\Enums\IntBacked::class,
+            Objects\Enums\StringBacked::class,
             Objects\Nested\Default\Strings::class,
             Objects\Nested\Merge\Strings::class,
             Objects\Nested\Nest\Strings::class,

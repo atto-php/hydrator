@@ -2,13 +2,22 @@
 
 declare(strict_types=1);
 
-namespace Atto\Hydrator\TestFixtures\Arrays\Nested;
+namespace Atto\Hydrator\TestFixtures\Arrays;
 
+use Atto\Hydrator\Attribute\HydrationStrategy;
+use Atto\Hydrator\Attribute\HydrationStrategyType;
+use Atto\Hydrator\Attribute\Subtype;
 use Atto\Hydrator\TestFixtures\Fixture;
+use Atto\Hydrator\TestFixtures\Scalars\Bools;
+use Atto\Hydrator\TestFixtures\Scalars\Floats;
+use Atto\Hydrator\TestFixtures\Scalars\Integers;
+use Atto\Hydrator\TestFixtures\Scalars\Strings;
 
-final class Scalars implements Fixture
+final class ObjectsWithScalarProperties implements Fixture
 {
     public function __construct(
+        #[Subtype(Bools::class)]
+        #[HydrationStrategy(HydrationStrategyType::Nest)]
         private array $integers,
         private array $strings,
         private array $bools,
@@ -21,10 +30,10 @@ final class Scalars implements Fixture
     {
         return [
             new self(
-                [[0, 1, 2], [3, 4, 5], [6, 7, 8]],
-                [['Hello, ', 'World!'], ['Howdy, ', 'Planet?']],
-                [[true, true], [true, false], [false, true], [false, false]],
-                [[3.14, 9.81], [0.0, 1.1]],
+                [Bools::getExampleObjects()],
+                [Floats::getExampleObjects()],
+                [Integers::getExampleObjects()],
+                [Strings::getExampleObjects()],
             ),
 
         ];

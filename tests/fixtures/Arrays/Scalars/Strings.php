@@ -2,20 +2,31 @@
 
 declare(strict_types=1);
 
-namespace Atto\Hydrator\TestFixtures\Arrays\Flat;
+namespace Atto\Hydrator\TestFixtures\Arrays\Scalars;
 
 use Atto\Hydrator\Attribute\SerializationStrategy;
 use Atto\Hydrator\Attribute\SerializationStrategyType;
+use Atto\Hydrator\Attribute\Subtype;
 use Atto\Hydrator\TestFixtures\Fixture;
 
-final class Scalars implements Fixture
+final class Strings implements Fixture
 {
+    /**
+     * @param string[] $default
+     * @param string[] $json
+     * @param string[] $commaDelimited
+     * @param string[] $pipeDelimited
+     */
     public function __construct(
+        #[Subtype('string')]
         private array $default,
+        #[Subtype('string')]
         #[SerializationStrategy(SerializationStrategyType::Json)]
         private array $json,
+        #[Subtype('string')]
         #[SerializationStrategy(SerializationStrategyType::CommaDelimited)]
         private array $commaDelimited,
+        #[Subtype('string')]
         #[SerializationStrategy(SerializationStrategyType::PipeDelimited)]
         private array $pipeDelimited,
     ) {
@@ -27,11 +38,10 @@ final class Scalars implements Fixture
         $newSelf = fn($p) => new self(...array_fill(0, 4, $p));
 
         return [
-            'list of nulls' => $newSelf([null, null]),
-            'list of bools' => $newSelf([true, false]),
-            'list of floats' => $newSelf(['3.14', '9.81']),
-            'list of integers' => $newSelf([1, 2, 3]),
-            'list of strings' => $newSelf(['Hello', 'World']),
+            //'empty array' => $newSelf([]),
+            '[""]' => $newSelf(['']),
+            '["Hello"]' => $newSelf(['Hello']),
+            '["Hello", "world"]' => $newSelf(['Hello', 'world']),
         ];
     }
 
@@ -41,7 +51,7 @@ final class Scalars implements Fixture
             'default' => json_encode($this->default),
             'json' => json_encode($this->json),
             'commaDelimited' => implode(',', $this->commaDelimited),
-            'pipeDelimited' => implode('|', $this->pipeDelimited)
+            'pipeDelimited' => implode('|', $this->pipeDelimited),
         ];
     }
 }
