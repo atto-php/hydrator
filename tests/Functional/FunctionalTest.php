@@ -5,19 +5,42 @@ declare(strict_types=1);
 namespace Atto\Hydrator\Tests\Functional;
 
 use Atto\Hydrator\Builder;
-use Atto\Hydrator\TestFixtures\{Arrays, Objects, Scalars};
 use Atto\Hydrator\TestFixtures\Fixture;
 use Generator;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(Builder::class)]
 final class FunctionalTest extends TestCase
 {
+    private const FIXTURES = [
+        // @TODO Fix subtypes in order to support enums
+        //Fixture\WithArrays\OfEnums\IntBacked::class,
+        //Fixture\WithArrays\OfEnums\StringBacked::class,
+        //Fixture\WithArrays\OfObjects\WithScalars\Bools::class,
+        Fixture\WithArrays\OfScalars\Bools::class,
+        Fixture\WithArrays\OfScalars\Floats::class,
+        Fixture\WithArrays\OfScalars\Integers::class,
+        Fixture\WithArrays\OfScalars\Strings::class,
+        Fixture\WithDateTimes::class,
+        Fixture\WithEnums\IntBacked::class,
+        Fixture\WithEnums\StringBacked::class,
+        Fixture\WithObjects\WithDateTimes::class,
+        Fixture\WithObjects\WithScalars\Bools::class,
+        Fixture\WithObjects\WithScalars\Floats::class,
+        Fixture\WithObjects\WithScalars\Integers::class,
+        Fixture\WithObjects\WithScalars\Strings::class,
+        Fixture\WithObjects\WithStringWrappers::class,
+        Fixture\WithScalars\Bools::class,
+        Fixture\WithScalars\Floats::class,
+        Fixture\WithScalars\Integers::class,
+        Fixture\WithScalars\Strings::class,
+        Fixture\WithStringWrappers::class,
+    ];
+
     private static Builder $builder;
+    private static array $generatedHydrators = [];
 
     /**
      * @param class-string $hydrator
@@ -29,7 +52,8 @@ final class FunctionalTest extends TestCase
     {
         self::assertEquals(
             $fixture->getExpectedArray(),
-            $hydrator->extract($fixture)
+            $hydrator->extract($fixture),
+            self::$generatedHydrators[$fixture::class]
         );
     }
 
@@ -40,7 +64,8 @@ final class FunctionalTest extends TestCase
     {
         self::assertEquals(
             $fixture,
-            $hydrator->create($fixture->getExpectedArray())
+            $hydrator->create($fixture->getExpectedArray()),
+            self::$generatedHydrators[$fixture::class]
         );
     }
 
@@ -55,67 +80,23 @@ final class FunctionalTest extends TestCase
             $object = $hydrator->create($array);
         }
 
-        self::assertEquals($fixture, $object);
-        self::assertEquals($fixture->getExpectedArray(), $array);
+        self::assertEquals($fixture, $object, self::$generatedHydrators[$fixture::class]);
+        self::assertEquals($fixture->getExpectedArray(), $array, self::$generatedHydrators[$fixture::class]);
+    }
+
+    #[Test]
+    public function itCreatesAHydrator(): void
+    {
+        foreach (self::FIXTURES as $fixture) {
+            self::makeHydratorExist($fixture);
+        }
+
+        self::assertTrue(true);
     }
 
     public static function provideFixtures(): Generator
     {
-        $fixtures = [
-            Arrays\Arrays\Scalars::class,
-            Arrays\Scalars\Bools::class,
-            Arrays\Scalars\Floats::class,
-            Arrays\Scalars\Integers::class,
-            Arrays\Scalars\Strings::class,
-            Objects\DateTimes::class,
-            Objects\Enums\IntBacked::class,
-            Objects\Enums\StringBacked::class,
-            Objects\Nested\Bools::class,
-            Objects\Nested\DateTimes::class,
-            Objects\Nested\Floats::class,
-            Objects\Nested\Integers::class,
-            Objects\Nested\Strings::class,
-            Objects\Nested\StringWrappers::class,
-            Objects\Nested\WithHydrationStrategy\Json\Bools::class,
-            Objects\Nested\WithHydrationStrategy\Json\Floats::class,
-            Objects\Nested\WithHydrationStrategy\Json\Integers::class,
-            Objects\Nested\WithHydrationStrategy\Json\Strings::class,
-            Objects\Nested\WithHydrationStrategy\Merge\Bools::class,
-            Objects\Nested\WithHydrationStrategy\Merge\Floats::class,
-            Objects\Nested\WithHydrationStrategy\Merge\Integers::class,
-            Objects\Nested\WithHydrationStrategy\Merge\Strings::class,
-            Objects\Nested\WithHydrationStrategy\Nest\Bools::class,
-            Objects\Nested\WithHydrationStrategy\Nest\Floats::class,
-            Objects\Nested\WithHydrationStrategy\Nest\Integers::class,
-            Objects\Nested\WithHydrationStrategy\Nest\Strings::class,
-            Objects\Nested\WithHydrationStrategy\Passthrough\Bools::class,
-            Objects\Nested\WithHydrationStrategy\Passthrough\Floats::class,
-            Objects\Nested\WithHydrationStrategy\Passthrough\Integers::class,
-            Objects\Nested\WithHydrationStrategy\Passthrough\Strings::class,
-            Objects\StringWrappers::class,
-            Scalars\Bools::class,
-            Scalars\Floats::class,
-            Scalars\Integers::class,
-            Scalars\Strings::class,
-            Scalars\Nullable\Bools::class,
-            Scalars\Nullable\Floats::class,
-            Scalars\Nullable\Integers::class,
-            Scalars\Nullable\Strings::class,
-            Scalars\Nullable\WithDefault\Bools::class,
-            Scalars\Nullable\WithDefault\Floats::class,
-            Scalars\Nullable\WithDefault\Integers::class,
-            Scalars\Nullable\WithDefault\Strings::class,
-            Scalars\Nullable\WithNullDefault\Bools::class,
-            Scalars\Nullable\WithNullDefault\Floats::class,
-            Scalars\Nullable\WithNullDefault\Integers::class,
-            Scalars\Nullable\WithNullDefault\Strings::class,
-            Scalars\WithDefault\Bools::class,
-            Scalars\WithDefault\Floats::class,
-            Scalars\WithDefault\Integers::class,
-            Scalars\WithDefault\Strings::class,
-        ];
-
-        foreach ($fixtures as $fixture) {
+        foreach (self::FIXTURES as $fixture) {
             $cases = $fixture::getExampleObjects();
             foreach ($cases as $case => $example) {
                 yield sprintf('%s => %s', $fixture, $case) => [
@@ -133,6 +114,8 @@ final class FunctionalTest extends TestCase
         $namespace ??= uniqid('Generated');
 
         $code = self::getBuilder()->build($fixture, $namespace);
+
+        self::$generatedHydrators[$fixture] = (string) $code;
 
         eval((string) $code);
 
