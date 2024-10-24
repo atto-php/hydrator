@@ -8,8 +8,8 @@ use Atto\Hydrator\Attribute\SerializationStrategy;
 use Atto\Hydrator\Attribute\SerializationStrategyType;
 use Atto\Hydrator\Attribute\Subtype;
 use Atto\Hydrator\Builder;
-
 use Atto\Hydrator\Exception\AttributeNotApplicable;
+use Atto\Hydrator\Exception\TypeHintException;
 use Atto\Hydrator\TestFixtures\Mocks\Enums\StringDummy;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -18,12 +18,46 @@ use PHPUnit\Framework\Attributes\UsesClass;
 
 #[CoversClass(Builder::class)]
 #[CoversClass(AttributeNotApplicable::class)]
+#[CoversClass(TypeHintException::class)]
 #[UsesClass(\Atto\Hydrator\Attribute\Subtype::class)]
 #[UsesClass(\Atto\Hydrator\ClassName::class)]
 #[UsesClass(\Atto\Hydrator\Template\Closure::class)]
 #[UsesClass(\Atto\Hydrator\Template\HydratorClass::class)]
 final class BuilderTest extends \PHPUnit\Framework\TestCase
 {
+    #[Test]
+    public function itThrowsOnMissingTypes(): void
+    {
+        $objectWithMissingTypeHint = new class () {private $ambiguous;};
+        $sut = new Builder();
+
+        self::expectExceptionObject(TypeHintException::missing('ambiguous'));
+
+        $sut->build($objectWithMissingTypeHint::class);
+    }
+
+    #[Test]
+    public function itThrowsOnUnionTypes(): void
+    {
+        $objectWithMissingTypeHint = new class () {private string|int $union;};
+        $sut = new Builder();
+
+        self::expectExceptionObject(TypeHintException::unsupported('union'));
+
+        $sut->build($objectWithMissingTypeHint::class);
+    }
+
+    #[Test]
+    public function itThrowsOnIntersectionTypes(): void
+    {
+        $objectWithMissingTypeHint = new class () {private \Countable&\Iterator $intersection;};
+        $sut = new Builder();
+
+        self::expectExceptionObject(TypeHintException::unsupported('intersection'));
+
+        $sut->build($objectWithMissingTypeHint::class);
+    }
+
     #[Test]
     #[DataProvider('provideNonApplicableSubtypes')]
     public function itThrowsOnNonApplicableSubtypes(
