@@ -9,6 +9,7 @@ use Atto\Hydrator\Attribute\SerializationStrategyType;
 use Atto\Hydrator\Attribute\Subtype;
 use Atto\Hydrator\Attribute\HydrationStrategy;
 use Atto\Hydrator\Attribute\HydrationStrategyType;
+use Atto\Hydrator\Exception\AttributeNotApplicable;
 use Atto\Hydrator\Template\Closure;
 use Atto\Hydrator\Template\HydratorClass;
 use ReflectionClass;
@@ -51,8 +52,7 @@ final class Builder
             if ($typeName === 'array') {
                 $serialisationStrategy = $this->getSerialisationStrategy($property);
                 $hydrationStrategy = $this->getHydrationStrategy($property) ??
-                    $this->typeNameToHydrationStrategy($this->getSubtype($property)) ??
-                    HydrationStrategyType::Primitive
+                    $this->typeNameToHydrationStrategy($this->getSubtype($property))
                 ;
 
                 if ($hydrationStrategy === HydrationStrategyType::Json) {
@@ -69,9 +69,16 @@ final class Builder
                 }
 
             } else {
+                if ($this->getSubtype($property) !== null) {
+                    throw AttributeNotApplicable::subtype($typeName, $propertyName);
+                }
+
+                if ($this->hasSerialisationStrategy($property)) {
+                    throw AttributeNotApplicable::serialisationStrategy($typeName, $propertyName);
+                }
+
                 $hydrationStrategy = $this->getHydrationStrategy($property) ??
-                    $this->typeNameToHydrationStrategy($typeName) ??
-                    HydrationStrategyType::Primitive
+                    $this->typeNameToHydrationStrategy($typeName)
                 ;
             }
 
@@ -122,6 +129,12 @@ final class Builder
         return SerializationStrategyType::Json;
     }
 
+    private function hasSerialisationStrategy(\ReflectionProperty $property): bool
+    {
+        $reflectionAttribute = current($property->getAttributes(SerializationStrategy::class)) ?: null;
+        return $reflectionAttribute !== null;
+    }
+
     private function getSubtype(\ReflectionProperty $property): ?string
     {
         $reflectionAttribute = current($property->getAttributes(Subtype::class)) ?: null;
@@ -132,12 +145,8 @@ final class Builder
         return $reflectionAttribute->newInstance()->type;
     }
 
-    private function typeNameToHydrationStrategy(?string $typeName): ?HydrationStrategyType
+    private function typeNameToHydrationStrategy(string $typeName): HydrationStrategyType
     {
-        if ($typeName === null) {
-            return null;
-        }
-
         if (in_array($typeName, ['float', 'int', 'string', 'bool', 'array'])) {
             return HydrationStrategyType::Primitive;
         }
