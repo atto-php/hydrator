@@ -10,6 +10,7 @@ use Atto\Hydrator\Attribute\Subtype;
 use Atto\Hydrator\Attribute\HydrationStrategy;
 use Atto\Hydrator\Attribute\HydrationStrategyType;
 use Atto\Hydrator\Exception\AttributeNotApplicable;
+use Atto\Hydrator\Exception\TypeHintException;
 use Atto\Hydrator\Template\Closure;
 use Atto\Hydrator\Template\HydratorClass;
 use ReflectionClass;
@@ -35,18 +36,16 @@ final class Builder
         );
 
         foreach ($refl->getProperties() as $property) {
-            $type = $property->getType();
+            $propertyName = $property->getName();
 
-            if ($type === null) {
-                throw new \Exception('must have a type hint');
-            }
+            $type = $property->getType() ??
+                throw TypeHintException::missing($propertyName);
 
             if (!($type instanceof \ReflectionNamedType)) {
-                throw new \Exception('cannot handle multiple type hints');
+                throw TypeHintException::unsupported($propertyName);
             }
 
             $typeName = $type->getName();
-            $propertyName = $property->getName();
             $serialisationStrategy = null;
 
             if ($typeName === 'array') {
