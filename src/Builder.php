@@ -86,14 +86,14 @@ final class Builder
                 $propertyName,
                 $hydrationStrategy,
                 $serialisationStrategy,
-                (! $property->getType()->allowsNull() || $property->hasDefaultValue()),
+                $property->getType()->allowsNull(),
             ));
             $extractCode->addPropertyAccessor($this->extractFor(
                 $typeName,
                 $propertyName,
                 $hydrationStrategy,
                 $serialisationStrategy,
-                ! ($property->getType()->allowsNull() || $property->hasDefaultValue()),
+                $property->getType()->allowsNull(),
             ));
 
             if ($hydrationStrategy->requiresSubHydrator()) {
@@ -168,10 +168,14 @@ final class Builder
         string|\Stringable $propertyName,
         HydrationStrategyType $hydrationStrategy,
         ?SerializationStrategyType $serialisationStrategy,
-        bool $needsChecks,
+        bool $nullable,
     ): \Stringable {
         return match ($hydrationStrategy) {
-            HydrationStrategyType::Primitive => new Template\Hydrate\Primitive($propertyName, $serialisationStrategy, $needsChecks),
+            HydrationStrategyType::Primitive => new Template\Hydrate\Primitive(
+                $propertyName,
+                $serialisationStrategy,
+                $nullable
+            ),
             HydrationStrategyType::Enum => new Template\Hydrate\Enum($propertyName, $serialisationStrategy, $typeName),
             HydrationStrategyType::DateTime => new Template\Hydrate\DateTime($propertyName, $serialisationStrategy, $typeName),
             HydrationStrategyType::String => new Template\Hydrate\StringWrapper($propertyName, $serialisationStrategy, $typeName),
@@ -187,13 +191,13 @@ final class Builder
         string|\Stringable $propertyName,
         HydrationStrategyType $hydrationStrategy,
         ?SerializationStrategyType $serialisationStrategy,
-        bool $needsChecks,
+        bool $nullable,
     ): \Stringable {
         return match ($hydrationStrategy) {
             HydrationStrategyType::Primitive => new Template\Extract\Primitive(
                 $propertyName,
                 $serialisationStrategy,
-                $needsChecks,
+                $nullable,
             ),
             HydrationStrategyType::Enum => new Template\Extract\Enum($propertyName, $serialisationStrategy),
             HydrationStrategyType::DateTime => new Template\Extract\DateTime($propertyName, $serialisationStrategy),

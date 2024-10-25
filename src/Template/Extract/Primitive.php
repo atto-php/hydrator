@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Atto\Hydrator\Template\Extract;
 
 use Atto\Hydrator\Attribute\SerializationStrategyType;
+use Atto\Hydrator\Template\ArrayReference;
 use Atto\Hydrator\Template\ObjectReference;
 
 final class Primitive
@@ -14,38 +15,43 @@ final class Primitive
         SerializationStrategyType::CommaDelimited->value => 'implode(\',\', %s)',
         SerializationStrategyType::PipeDelimited->value => 'implode(\'|\', %s)',
     ];
-    private const SERIALISE_GUARDED = [
-        SerializationStrategyType::Json->value => 'is_null(%1$s) ? null : json_encode(%1$s)',
-        SerializationStrategyType::CommaDelimited->value => 'is_null(%1$s) ? null : implode(\',\', %1$s)',
-        SerializationStrategyType::PipeDelimited->value => 'is_null(%1$s) ? null : implode(\'|\', %1$s)',
+    private const SERIALISE_NULLABLE = [
+        SerializationStrategyType::Json->value => 'isset(%1$s) ? json_encode(%1$s) : null',
+        SerializationStrategyType::CommaDelimited->value => 'isset(%1$s) ? implode(\',\', %1$s) : null',
+        SerializationStrategyType::PipeDelimited->value => 'isset(%1$s) ? implode(\'|\', %1$s) : null',
     ];
 
-    private const ASSIGNMENT = '$values[\'%1$s\'] = %2$s;' . "\n";
-    private const ASSIGNMENT_GUARDED = '$values[\'%1$s\'] = %2$s ?? null;' . "\n";
-
-    private readonly ObjectReference $valueReference;
+    private readonly ArrayReference $arrayReference;
+    private readonly ObjectReference $objectReference;
 
     public function __construct(
         private readonly string $propertyName,
         private readonly ?SerializationStrategyType $serialisationStrategy,
-        private readonly bool $needsChecks,
+        private readonly bool $nullable,
     ) {
-        $this->valueReference = new ObjectReference($this->propertyName);
+        $this->arrayReference = new ArrayReference($this->propertyName);
+        $this->objectReference = new ObjectReference($this->propertyName);
     }
 
     public function __toString(): string
     {
-        return sprintf(
-            $this->needsChecks ? self::ASSIGNMENT_GUARDED : self::ASSIGNMENT,
-            $this->propertyName,
-            $this->serialisationStrategy === null ?
-                $this->valueReference :
-                sprintf(
-                    $this->needsChecks ?
-                        self::SERIALISE_GUARDED[$this->serialisationStrategy->value] :
-                        self::SERIALISE[$this->serialisationStrategy->value],
-                    $this->valueReference
-                ),
-        );
+        if ($this->nullable) {
+            return sprintf(
+                '%1$s = %2$s ?? null;',
+                $this->arrayReference,
+                $this->serialisationStrategy === null ?
+                    $this->objectReference :
+                    sprintf(self::SERIALISE_NULLABLE[$this->serialisationStrategy->value], $this->objectReference),
+            );
+        } else {
+            return sprintf(
+                'if (isset(%1$s)) %2$s = %3$s;',
+                $this->objectReference,
+                $this->arrayReference,
+                $this->serialisationStrategy === null ?
+                    $this->objectReference :
+                    sprintf(self::SERIALISE[$this->serialisationStrategy->value], $this->objectReference),
+            );
+        }
     }
 }

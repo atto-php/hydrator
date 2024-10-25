@@ -8,6 +8,9 @@ use Atto\Hydrator\TestFixtures\Fixture;
 
 final class Bools implements Fixture
 {
+    private bool $unset;
+    private ?bool $unsetNullable;
+
     public function __construct(
         private bool $basic,
         private ?bool $nullable,
@@ -35,7 +38,9 @@ final class Bools implements Fixture
             'nullable' => $this->nullable,
             'withDefault' => $this->withDefault,
             'nullableWithDefault' => $this->nullableWithDefault,
-            'nullableWithNullDefault' => $this->nullableWithNullDefault
+            'nullableWithNullDefault' => $this->nullableWithNullDefault,
+            // unset will not be extracted
+            'unsetNullable' => null,
         ];
     }
 }

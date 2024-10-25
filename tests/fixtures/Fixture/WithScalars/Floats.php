@@ -8,6 +8,9 @@ use Atto\Hydrator\TestFixtures\Fixture;
 
 final class Floats implements Fixture
 {
+    private float $unset;
+    private ?float $unsetNullable;
+
     public function __construct(
         private float $basic,
         private ?float $nullable,
@@ -35,7 +38,9 @@ final class Floats implements Fixture
             'nullable' => $this->nullable,
             'withDefault' => $this->withDefault,
             'nullableWithDefault' => $this->nullableWithDefault,
-            'nullableWithNullDefault' => $this->nullableWithNullDefault
+            'nullableWithNullDefault' => $this->nullableWithNullDefault,
+            // unset will not be here
+            'unsetNullable' => null,
         ];
     }
 }
