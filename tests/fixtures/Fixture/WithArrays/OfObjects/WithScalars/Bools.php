@@ -32,6 +32,11 @@ final class Bools implements Fixture
         ];
     }
 
+    public function getExpectedObject(): Bools
+    {
+        return $this;
+    }
+
     public function getExpectedArray(): array
     {
         $mergeKeys = function (string $parentProperty, array $childProperties) {

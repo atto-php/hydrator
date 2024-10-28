@@ -37,6 +37,17 @@ final class Integers implements Fixture
         return $examples;
     }
 
+    public function getExpectedObject(): Integers
+    {
+        return new Integers(
+            basic: $this->basic->getExpectedObject(),
+            jsonHydrationStrategy: $this->jsonHydrationStrategy->getExpectedObject(),
+            mergeHydrationStrategy: $this->mergeHydrationStrategy->getExpectedObject(),
+            nestHydrationStrategy: $this->nestHydrationStrategy->getExpectedObject(),
+            passthroughHydrationStrategy: $this->passthroughHydrationStrategy,
+        );
+    }
+
     public function getExpectedArray(): array
     {
         $mergeKeys = function (string $parentProperty, array $childProperties) {

@@ -35,6 +35,11 @@ final class StringBacked implements Fixture
         ];
     }
 
+    public function getExpectedObject(): StringBacked
+    {
+        return $this;
+    }
+
     public function getExpectedArray(): array
     {
         return [

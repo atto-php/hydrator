@@ -36,6 +36,11 @@ final class WithDateTimes implements Fixture
         ];
     }
 
+    public function getExpectedObject(): WithDateTimes
+    {
+        return $this;
+    }
+
     public function getExpectedArray(): array
     {
         return [

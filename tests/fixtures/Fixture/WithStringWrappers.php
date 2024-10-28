@@ -32,6 +32,11 @@ final class WithStringWrappers implements Fixture
         ];
     }
 
+    public function getExpectedObject(): WithStringWrappers
+    {
+        return $this;
+    }
+
     public function getExpectedArray(): array
     {
         return [

@@ -31,16 +31,24 @@ final class Bools implements Fixture
         ];
     }
 
+    public function getExpectedObject(): Bools
+    {
+        $expectedObject = clone $this;
+        $expectedObject->unsetNullable = null;
+
+        return $expectedObject;
+    }
+
     public function getExpectedArray(): array
     {
         return [
+            // unset will not be extracted
+            'unsetNullable' => null,
             'basic' => $this->basic,
             'nullable' => $this->nullable,
             'withDefault' => $this->withDefault,
             'nullableWithDefault' => $this->nullableWithDefault,
             'nullableWithNullDefault' => $this->nullableWithNullDefault,
-            // unset will not be extracted
-            'unsetNullable' => null,
         ];
     }
 }

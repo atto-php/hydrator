@@ -37,6 +37,17 @@ final class Strings implements Fixture
         return $examples;
     }
 
+    public function getExpectedObject(): Strings
+    {
+        return new Strings(
+            basic: $this->basic->getExpectedObject(),
+            jsonHydrationStrategy: $this->jsonHydrationStrategy->getExpectedObject(),
+            mergeHydrationStrategy: $this->mergeHydrationStrategy->getExpectedObject(),
+            nestHydrationStrategy: $this->nestHydrationStrategy->getExpectedObject(),
+            passthroughHydrationStrategy: $this->passthroughHydrationStrategy,
+        );
+    }
+
     public function getExpectedArray(): array
     {
         $mergeKeys = function (string $parentProperty, array $childProperties) {

@@ -29,6 +29,11 @@ final class WithDateTimes implements Fixture
         return $examples;
     }
 
+    public function getExpectedObject(): WithDateTimes
+    {
+        return $this;
+    }
+
     public function getExpectedArray(): array
     {
         $mergeKeys = function (string $parentProperty, array $childProperties) {

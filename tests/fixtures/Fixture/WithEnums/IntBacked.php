@@ -35,6 +35,11 @@ final class IntBacked implements Fixture
         ];
     }
 
+    public function getExpectedObject(): IntBacked
+    {
+        return $this;
+    }
+
     public function getExpectedArray(): array
     {
         return [
