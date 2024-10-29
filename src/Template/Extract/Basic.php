@@ -15,11 +15,6 @@ trait Basic
         SerializationStrategyType::CommaDelimited->value => 'implode(\',\', array_map(fn($value) => %s, %s))',
         SerializationStrategyType::PipeDelimited->value => 'implode(\'|\', array_map(fn($value) => %s, %s))',
     ];
-    const SERIALISE_NULLABLE = [
-        SerializationStrategyType::Json->value => 'isset(%2$s) ? json_encode(array_map(fn($value) => %1$s, %2$s)) : null',
-        SerializationStrategyType::CommaDelimited->value => 'isset(%2$s) ? implode(\',\', array_map(fn($value) => %s, %s)) : null',
-        SerializationStrategyType::PipeDelimited->value => 'isset(%2$s) ? implode(\'|\', array_map(fn($value) => %s, %s)) : null',
-    ];
 
     private readonly ArrayReference $arrayReference;
     private readonly ObjectReference $objectReference;
@@ -35,32 +30,22 @@ trait Basic
 
     public function __toString(): string
     {
+        $format = 'if (isset(%1$s)) {%2$s = %3$s;}';
         if ($this->nullable) {
-            return sprintf(
-                '%2$s = isset(%1$s) ? %3$s : null;' . "\n",
-                $this->objectReference,
-                $this->arrayReference,
-                $this->serialisationStrategy === null ?
-                    sprintf(self::EXTRACT_FORMAT, $this->objectReference) :
-                    sprintf(
-                        self::SERIALISE_NULLABLE[$this->serialisationStrategy->value],
-                        sprintf(self::EXTRACT_FORMAT, '$value'),
-                        $this->objectReference
-                    )
-            );
-        } else {
-            return sprintf(
-                'if (isset(%1$s)) %2$s = %3$s;' . "\n",
-                $this->objectReference,
-                $this->arrayReference,
-                $this->serialisationStrategy === null ?
-                    sprintf(self::EXTRACT_FORMAT, $this->objectReference) :
-                    sprintf(
-                        self::SERIALISE[$this->serialisationStrategy->value],
-                        sprintf(self::EXTRACT_FORMAT, '$value'),
-                        $this->objectReference
-                    )
-            );
+            $format .= 'else {%2$s = null;}';
         }
+
+        return sprintf(
+            $format,
+            $this->objectReference,
+            $this->arrayReference,
+            $this->serialisationStrategy === null ?
+                sprintf(self::EXTRACT_FORMAT, $this->objectReference) :
+                sprintf(
+                    self::SERIALISE[$this->serialisationStrategy->value],
+                    sprintf(self::EXTRACT_FORMAT, '$value'),
+                    $this->objectReference
+                )
+        );
     }
 }
