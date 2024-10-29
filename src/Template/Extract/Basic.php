@@ -8,7 +8,7 @@ use Atto\Hydrator\Attribute\SerializationStrategyType;
 use Atto\Hydrator\Template\ArrayReference;
 use Atto\Hydrator\Template\ObjectReference;
 
-trait BasicExtract
+trait Basic
 {
     const SERIALISE = [
         SerializationStrategyType::Json->value => 'json_encode(array_map(fn($value) => %s, %s))',
@@ -26,7 +26,7 @@ trait BasicExtract
 
     public function __construct(
         private readonly string $propertyName,
-        private readonly ?SerializationStrategyType $serialisationStrategy = null,
+        private readonly ?SerializationStrategyType $serialisationStrategy,
         private readonly bool $nullable,
     ) {
         $this->arrayReference = new ArrayReference($this->propertyName);

@@ -8,5 +8,5 @@ final class StringWrapper
 {
     const EXTRACT_FORMAT = '(string) %s';
 
-    use BasicExtract;
+    use Basic;
 }

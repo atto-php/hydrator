@@ -10,12 +10,7 @@ use Atto\Hydrator\Template\ObjectReference;
 
 final class Enum
 {
-    private const HYDRATE_FORMAT = '\%2$s::tryFrom(%1$s)';
-
-    private const DESERIALISE = [
-        SerializationStrategyType::Json->value => 'array_map(fn($value) => %s, json_decode(%s, true))',
-        SerializationStrategyType::CommaDelimited->value => 'array_map(fn($value) => %s, explode(\',\', %s))'
-    ];
+    use Basic;
 
     private ArrayReference $arrayReference;
     private ObjectReference $objectReference;
@@ -30,24 +25,8 @@ final class Enum
         $this->objectReference = new ObjectReference($this->propertyName);
     }
 
-    public function __toString(): string
+    private function getHydrationFormat(string $valueReference): string
     {
-        $format = 'if (isset(%1$s)) {%2$s = %3$s;}';
-        if ($this->nullable) {
-            $format .= 'else {%2$s = null;}';
-        }
-
-        return sprintf(
-            $format,
-            $this->arrayReference,
-            $this->objectReference,
-            $this->serializationStrategy === null ?
-                sprintf(self::HYDRATE_FORMAT, $this->arrayReference, $this->className) :
-                sprintf(
-                    self::DESERIALISE[$this->serializationStrategy->value],
-                    sprintf(self::HYDRATE_FORMAT, '$value', $this->className),
-                    $this->arrayReference
-                ),
-        );
+        return sprintf('\%s::tryFrom(%s)', $this->className, $valueReference);
     }
 }
