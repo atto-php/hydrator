@@ -11,6 +11,9 @@ use DateTime;
 
 final class WithDateTimes implements Fixture
 {
+    private DateTime $unset;
+    private ?DateTime $unsetNullable;
+
     /**
      * @param DateTime $dateTimeHydrationStrategy
      * The hydrator identifies implementations of the DateTimeInterface
@@ -21,6 +24,7 @@ final class WithDateTimes implements Fixture
         private DateTime $basic,
         #[HydrationStrategy(HydrationStrategyType::DateTime)]
         private DateTime $dateTimeHydrationStrategy,
+        private ?DateTime $nullable,
         private DateTime $withDefault = new DateTime('1970-01-01'),
     ) {
     }
@@ -30,24 +34,37 @@ final class WithDateTimes implements Fixture
     {
         return [
             '2020-02-02' =>
-                new self(...array_fill(0, 3, new DateTime('2020-02-02'))),
+                new self(...array_fill(0, 4, new DateTime('2020-02-02'))),
+            'set nullable properties to null' =>
+                new self(
+                    new DateTime('2020-02-02'),
+                    new DateTime('2020-02-02'),
+                    null,
+                    new DateTime('2020-02-02'),
+                ),
             'rely on defaults' =>
-                new self(...array_fill(0, 2, new DateTime('2020-02-02'))),
+                new self(...array_fill(0, 3, new DateTime('2020-02-02'))),
         ];
     }
 
     public function getExpectedObject(): WithDateTimes
     {
-        return $this;
+        $expected = clone $this;
+        $expected->unsetNullable = null;
+        return $expected;
     }
 
     public function getExpectedArray(): array
     {
         return [
+            // unset will not appear here
+            'unsetNullable' => null,
             'basic' =>
                 $this->basic->format(DATE_ATOM),
             'dateTimeHydrationStrategy' =>
                 $this->dateTimeHydrationStrategy->format(DATE_ATOM),
+            'nullable' =>
+                $this->nullable?->format(DATE_ATOM),
             'withDefault' =>
                 $this->withDefault->format(DATE_ATOM),
         ];

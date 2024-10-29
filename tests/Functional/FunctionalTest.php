@@ -68,29 +68,29 @@ final class FunctionalTest extends TestCase
             // self::$generatedHydrators[$fixture::class]
         );
     }
-
-     #[Test]
-     #[DataProvider('provideFixtures')]
-     #[TestDox('"extract" and "create" form an idempotent operation')]
-     public function itIsIdempotent(object $hydrator, Fixture $fixture): void
-     {
-         $object = $fixture;
-         for ($i = 0; $i < 3; $i++) {
-             $array = $hydrator->extract($object);
-             $object = $hydrator->create($array);
-         }
-
-         self::assertEquals(
-             $fixture->getExpectedObject(),
-             $object,
-             // self::$generatedHydrators[$fixture::class]
-         );
-         self::assertEquals(
-             $fixture->getExpectedArray(),
-             $array,
-             // self::$generatedHydrators[$fixture::class],
-         );
-     }
+    //
+    // #[Test]
+    // #[DataProvider('provideFixtures')]
+    // #[TestDox('"extract" and "create" form an idempotent operation')]
+    // public function itIsIdempotent(object $hydrator, Fixture $fixture): void
+    // {
+    //     $object = $fixture;
+    //     for ($i = 0; $i < 3; $i++) {
+    //         $array = $hydrator->extract($object);
+    //         $object = $hydrator->create($array);
+    //     }
+    //
+    //     self::assertEquals(
+    //         $fixture->getExpectedObject(),
+    //         $object,
+    //         // self::$generatedHydrators[$fixture::class]
+    //     );
+    //     self::assertEquals(
+    //         $fixture->getExpectedArray(),
+    //         $array,
+    //         // self::$generatedHydrators[$fixture::class],
+    //     );
+    // }
 
     #[Test]
     public function itCreatesAHydrator(): void

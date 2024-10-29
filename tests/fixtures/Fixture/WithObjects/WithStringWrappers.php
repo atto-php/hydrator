@@ -16,20 +16,17 @@ final class WithStringWrappers implements Fixture
     /** @return Fixture[] */
     public static function getExampleObjects(): array
     {
-        $subFixtures = Fixture\WithStringWrappers::getExampleObjects();
-
-        $examples = [];
-        foreach($subFixtures as $case => $subFixture) {
-            assert ($subFixture instanceof Fixture\WithStringWrappers);
-            $examples[$case] = new self($subFixture);
-        }
-
-        return $examples;
+        return array_map(
+            fn ($subFixture) => new self($subFixture),
+            Fixture\WithStringWrappers::getExampleObjects(),
+        );
     }
 
     public function getExpectedObject(): WithStringWrappers
     {
-        return $this;
+        return new self(
+            basic: $this->basic->getExpectedObject(),
+        );
     }
 
     public function getExpectedArray(): array

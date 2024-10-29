@@ -31,7 +31,9 @@ final class WithDateTimes implements Fixture
 
     public function getExpectedObject(): WithDateTimes
     {
-        return $this;
+        return new self(
+            basic: $this->basic->getExpectedObject(),
+        );
     }
 
     public function getExpectedArray(): array

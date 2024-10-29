@@ -14,8 +14,9 @@ final class Json
     private readonly ObjectReference $valueReference;
 
     public function __construct(
-        private readonly string|\Stringable $propertyName,
+        private readonly string $propertyName,
         private readonly string $className,
+        // private readonly bool $nullable,
     ) {
         $this->valueReference = new ObjectReference($this->propertyName);
     }

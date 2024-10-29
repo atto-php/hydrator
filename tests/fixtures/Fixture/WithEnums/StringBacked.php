@@ -11,6 +11,8 @@ use Atto\Hydrator\TestFixtures\Mocks\Enums\StringDummy;
 
 final class StringBacked implements Fixture
 {
+    private StringDummy $unset;
+    private ?StringDummy $unsetNullable;
     /**
      * @param StringDummy $enumHydrationStrategy
      * The hydrator identifies enums
@@ -21,6 +23,7 @@ final class StringBacked implements Fixture
         private StringDummy $basic,
         #[HydrationStrategy(HydrationStrategyType::Enum)]
         private StringDummy $enumHydrationStrategy,
+        private ?StringDummy $nullable,
         private StringDummy $withDefault = StringDummy::Zero,
     ) {
     }
@@ -29,22 +32,33 @@ final class StringBacked implements Fixture
     public static function getExampleObjects(): array
     {
         return [
-            'Zero' => new self(...array_fill(0, 3, StringDummy::Zero)),
-            'One' => new self(...array_fill(0, 3, StringDummy::One)),
-            'rely on default' => new self(...array_fill(0, 2, StringDummy::One))
+            'Zero' => new self(...array_fill(0, 4, StringDummy::Zero)),
+            'One' => new self(...array_fill(0, 4, StringDummy::One)),
+            'set nullable properties to null' => new self(
+                StringDummy::One,
+                StringDummy::One,
+                null,
+                StringDummy::One,
+            ),
+            'rely on default' => new self(...array_fill(0, 3, StringDummy::One))
         ];
     }
 
     public function getExpectedObject(): StringBacked
     {
-        return $this;
+        $expected = clone $this;
+        $expected->unsetNullable = null;
+        return $expected;
     }
 
     public function getExpectedArray(): array
     {
         return [
+            // unset will not be here
+            'unsetNullable' => null,
             'basic' => $this->basic->value,
             'enumHydrationStrategy' => $this->enumHydrationStrategy->value,
+            'nullable' => $this->nullable?->value,
             'withDefault' => $this->withDefault->value,
         ];
     }
