@@ -24,7 +24,11 @@ final class WithDateTimes implements Fixture
         private DateTime $basic,
         #[HydrationStrategy(HydrationStrategyType::DateTime)]
         private DateTime $dateTimeHydrationStrategy,
+        #[HydrationStrategy(HydrationStrategyType::Passthrough)]
+        private DateTime $passthroughHydrationStrategy,
         private ?DateTime $nullable,
+        #[HydrationStrategy(HydrationStrategyType::Passthrough)]
+        private ?DateTime $nullablePassthroughHydrationStrategy,
         private DateTime $withDefault = new DateTime('1970-01-01'),
     ) {
     }
@@ -34,16 +38,18 @@ final class WithDateTimes implements Fixture
     {
         return [
             '2020-02-02' =>
-                new self(...array_fill(0, 4, new DateTime('2020-02-02'))),
+                new self(...array_fill(0, 6, new DateTime('2020-02-02'))),
             'set nullable properties to null' =>
                 new self(
                     new DateTime('2020-02-02'),
                     new DateTime('2020-02-02'),
+                    new DateTime('2020-02-02'),
+                    null,
                     null,
                     new DateTime('2020-02-02'),
                 ),
             'rely on defaults' =>
-                new self(...array_fill(0, 3, new DateTime('2020-02-02'))),
+                new self(...array_fill(0, 5, new DateTime('2020-02-02'))),
         ];
     }
 
@@ -63,8 +69,12 @@ final class WithDateTimes implements Fixture
                 $this->basic->format(DATE_ATOM),
             'dateTimeHydrationStrategy' =>
                 $this->dateTimeHydrationStrategy->format(DATE_ATOM),
+            'passthroughHydrationStrategy' =>
+                $this->dateTimeHydrationStrategy,
             'nullable' =>
                 $this->nullable?->format(DATE_ATOM),
+            'nullablePassthroughHydrationStrategy' =>
+                $this->nullablePassthroughHydrationStrategy,
             'withDefault' =>
                 $this->withDefault->format(DATE_ATOM),
         ];

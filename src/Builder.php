@@ -197,7 +197,10 @@ final class Builder
             HydrationStrategyType::Nest => new Template\Hydrate\Nest($propertyName,$serialisationStrategy, $typeName),
             HydrationStrategyType::Json => new Template\Hydrate\Json($propertyName, $typeName),
             HydrationStrategyType::Merge => new Template\Hydrate\Merge($propertyName, $typeName),
-            HydrationStrategyType::Passthrough => new Template\Hydrate\Passthrough($propertyName)
+            HydrationStrategyType::Passthrough => new Template\Hydrate\Passthrough(
+                $propertyName,
+                $nullable,
+            )
         };
     }
 
@@ -232,7 +235,10 @@ final class Builder
             HydrationStrategyType::Nest => new Template\Extract\Nest($propertyName, $typeName, $serialisationStrategy),
             HydrationStrategyType::Json => new Template\Extract\Json($propertyName, $typeName),
             HydrationStrategyType::Merge => new Template\Extract\Merge($propertyName, $typeName),
-            HydrationStrategyType::Passthrough => new Template\Extract\Passthrough($propertyName)
+            HydrationStrategyType::Passthrough => new Template\Extract\Passthrough(
+                $propertyName,
+                $nullable,
+            )
         };
     }
 }

@@ -21,8 +21,12 @@ final class WithStringWrappers implements Fixture
     public function __construct(
         #[HydrationStrategy(HydrationStrategyType::String)]
         private WrappedString $basic,
+        #[HydrationStrategy(HydrationStrategyType::Passthrough)]
+        private WrappedString $passthroughHydrationStrategy,
         #[HydrationStrategy(HydrationStrategyType::String)]
         private ?WrappedString $nullable,
+        #[HydrationStrategy(HydrationStrategyType::Passthrough)]
+        private ?WrappedString $nullablePassthroughHydrationStrategy,
         #[HydrationStrategy(HydrationStrategyType::String)]
         private WrappedString $withDefault = new WrappedString('Hello'),
     ) {
@@ -33,13 +37,18 @@ final class WithStringWrappers implements Fixture
     {
         return [
             'empty string' =>
-                new self(...array_fill(0, 3, new WrappedString(''))),
+                new self(...array_fill(0, 5, new WrappedString(''))),
             'non-empty string' =>
-                new self(...array_fill(0, 3, new WrappedString('World!'))),
+                new self(...array_fill(0, 5, new WrappedString('World!'))),
             'set nullable to null' =>
-                new self(new WrappedString('Howdy'), null, new WrappedString('Planet')),
+                new self(
+                    new WrappedString('Good'),
+                    new WrappedString('Day'),
+                    null,
+                    null,
+                    new WrappedString('Earth')),
             'rely on defaults' =>
-                new self(...array_fill(0, 2, new WrappedString('World!'))),
+                new self(...array_fill(0, 4, new WrappedString('World!'))),
         ];
     }
 
@@ -57,8 +66,12 @@ final class WithStringWrappers implements Fixture
             'unsetNullable' => null,
             'basic' =>
                 $this->basic->__toString(),
+            'passthroughHydrationStrategy' =>
+                $this->passthroughHydrationStrategy,
             'nullable' =>
                 $this->nullable?->__toString(),
+            'nullablePassthroughHydrationStrategy' =>
+                $this->nullablePassthroughHydrationStrategy,
             'withDefault' =>
                 $this->withDefault->__toString(),
         ];
