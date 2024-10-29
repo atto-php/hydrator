@@ -15,11 +15,6 @@ final class Primitive
         SerializationStrategyType::CommaDelimited->value => 'implode(\',\', %s)',
         SerializationStrategyType::PipeDelimited->value => 'implode(\'|\', %s)',
     ];
-    private const SERIALISE_NULLABLE = [
-        SerializationStrategyType::Json->value => 'isset(%1$s) ? json_encode(%1$s) : null',
-        SerializationStrategyType::CommaDelimited->value => 'isset(%1$s) ? implode(\',\', %1$s) : null',
-        SerializationStrategyType::PipeDelimited->value => 'isset(%1$s) ? implode(\'|\', %1$s) : null',
-    ];
 
     private readonly ArrayReference $arrayReference;
     private readonly ObjectReference $objectReference;
@@ -35,23 +30,21 @@ final class Primitive
 
     public function __toString(): string
     {
+        $format = 'if (isset(%1$s)) {%2$s = %3$s;}';
         if ($this->nullable) {
-            return sprintf(
-                '%1$s = %2$s ?? null;',
-                $this->arrayReference,
-                $this->serialisationStrategy === null ?
-                    $this->objectReference :
-                    sprintf(self::SERIALISE_NULLABLE[$this->serialisationStrategy->value], $this->objectReference),
-            );
-        } else {
-            return sprintf(
-                'if (isset(%1$s)) %2$s = %3$s;',
-                $this->objectReference,
-                $this->arrayReference,
-                $this->serialisationStrategy === null ?
-                    $this->objectReference :
-                    sprintf(self::SERIALISE[$this->serialisationStrategy->value], $this->objectReference),
-            );
+            $format .= 'else {%2$s = null;}';
         }
+
+        return sprintf(
+            $format,
+            $this->objectReference,
+            $this->arrayReference,
+            $this->serialisationStrategy === null ?
+                $this->objectReference :
+                sprintf(
+                    self::SERIALISE[$this->serialisationStrategy->value],
+                    $this->objectReference,
+                ),
+        );
     }
 }
