@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Atto\Hydrator\TestFixtures\Fixture\WithObjects\WithScalars;
 
-use Atto\Hydrator\{Attribute\HydrationStrategy, Attribute\HydrationStrategyType, TestFixtures\Fixture};
-use Atto\Hydrator\Attribute\SerializationStrategy;
-use Atto\Hydrator\Attribute\SerializationStrategyType;
+use Atto\Hydrator\Attribute\HydrationStrategy;
+use Atto\Hydrator\Attribute\HydrationStrategyType;
+use Atto\Hydrator\TestFixtures\Fixture;
 
 final class Integers implements Fixture
 {
@@ -14,25 +14,48 @@ final class Integers implements Fixture
         private Fixture\WithScalars\Integers $basic,
         #[HydrationStrategy(HydrationStrategyType::Json)]
         private Fixture\WithScalars\Integers $jsonHydrationStrategy,
+        #[HydrationStrategy(HydrationStrategyType::Json)]
+        private ?Fixture\WithScalars\Integers $nullableJsonHydrationStrategy,
         #[HydrationStrategy(HydrationStrategyType::Merge)]
         private Fixture\WithScalars\Integers $mergeHydrationStrategy,
+        #[HydrationStrategy(HydrationStrategyType::Merge)]
+        private ?Fixture\WithScalars\Integers $nullableMergeHydrationStrategy,
         #[HydrationStrategy(HydrationStrategyType::Nest)]
-        private Fixture\WithScalars\Integers $nestHydrationStrategy,
+        private ?Fixture\WithScalars\Integers $nestHydrationStrategy,
+        #[HydrationStrategy(HydrationStrategyType::Nest)]
+        private ?Fixture\WithScalars\Integers $nullableNestHydrationStrategy,
         #[HydrationStrategy(HydrationStrategyType::Passthrough)]
         private Fixture\WithScalars\Integers $passthroughHydrationStrategy,
+        #[HydrationStrategy(HydrationStrategyType::Passthrough)]
+        private ?Fixture\WithScalars\Integers $nullablePassthroughHydrationStrategy,
     ) {
     }
 
-    /** @return Fixture[] */
+    /** @return Integers[] */
     public static function getExampleObjects(): array
     {
         $subFixtures = Fixture\WithScalars\Integers::getExampleObjects();
 
+        $basicSubFixture = current($subFixtures);
+        assert ($basicSubFixture instanceof Fixture\WithScalars\Integers);
+
         $examples = [];
         foreach($subFixtures as $case => $subFixture) {
-            assert ($subFixture instanceof Fixture\WithScalars\Integers);
-            $examples[$case] = new self(...array_fill(0, 5, $subFixture));
+            $examples[$case] = new self(...array_fill(0, 9, $subFixture));
         }
+
+        $examples['basic subfixtures, but nullable properties set to null'] =
+            new self(
+                basic: $basicSubFixture,
+                jsonHydrationStrategy: $basicSubFixture,
+                nullableJsonHydrationStrategy: null,
+                mergeHydrationStrategy: $basicSubFixture,
+                nullableMergeHydrationStrategy: null,
+                nestHydrationStrategy: $basicSubFixture,
+                nullableNestHydrationStrategy: null,
+                passthroughHydrationStrategy: $basicSubFixture,
+                nullablePassthroughHydrationStrategy: null,
+            );
 
         return $examples;
     }
@@ -40,11 +63,22 @@ final class Integers implements Fixture
     public function getExpectedObject(): Integers
     {
         return new Integers(
-            basic: $this->basic->getExpectedObject(),
-            jsonHydrationStrategy: $this->jsonHydrationStrategy->getExpectedObject(),
-            mergeHydrationStrategy: $this->mergeHydrationStrategy->getExpectedObject(),
-            nestHydrationStrategy: $this->nestHydrationStrategy->getExpectedObject(),
+            basic: $this->basic
+                ->getExpectedObject(),
+            jsonHydrationStrategy: $this->jsonHydrationStrategy
+                ->getExpectedObject(),
+            nullableJsonHydrationStrategy: $this->nullableJsonHydrationStrategy
+                ?->getExpectedObject(),
+            mergeHydrationStrategy: $this->mergeHydrationStrategy
+                ->getExpectedObject(),
+            nullableMergeHydrationStrategy: $this->nullableMergeHydrationStrategy
+                ?->getExpectedObject(),
+            nestHydrationStrategy: $this->nestHydrationStrategy
+                ->getExpectedObject(),
+            nullableNestHydrationStrategy: $this->nullableNestHydrationStrategy
+                ?->getExpectedObject(),
             passthroughHydrationStrategy: $this->passthroughHydrationStrategy,
+            nullablePassthroughHydrationStrategy: $this->nullablePassthroughHydrationStrategy,
         );
     }
 
@@ -60,20 +94,27 @@ final class Integers implements Fixture
         };
 
         return [
-            ...$mergeKeys(
-                'basic',
-                $this->basic->getExpectedArray()
-            ),
+            ...$mergeKeys('basic', $this->basic
+                ->getExpectedArray()),
             'jsonHydrationStrategy' =>
                 json_encode($this->jsonHydrationStrategy->getExpectedArray()),
-            ...$mergeKeys(
-                'mergeHydrationStrategy',
-                $this->mergeHydrationStrategy->getExpectedArray()
-            ),
+            'nullableJsonHydrationStrategy' => isset($this->nullableJsonHydrationStrategy) ?
+                json_encode($this->nullableJsonHydrationStrategy->getExpectedArray()) :
+                null,
+            ...$mergeKeys('mergeHydrationStrategy', $this->mergeHydrationStrategy
+                ->getExpectedArray()),
+            ...isset($this->nullableMergeHydrationStrategy) ?
+                $mergeKeys('nullableMergeHydrationStrategy', $this->nullableMergeHydrationStrategy->getExpectedArray()) :
+                ['nullableMergeHydrationStrategy' => null],
             'nestHydrationStrategy' =>
                 $this->nestHydrationStrategy->getExpectedArray(),
+            'nullableNestHydrationStrategy' => isset($this->nullableNestHydrationStrategy) ?
+                $this->nullableNestHydrationStrategy->getExpectedArray() :
+                null,
             'passthroughHydrationStrategy' =>
-                $this->passthroughHydrationStrategy
+                $this->passthroughHydrationStrategy,
+            'nullablePassthroughHydrationStrategy' =>
+                $this->nullablePassthroughHydrationStrategy,
         ];
     }
 }
