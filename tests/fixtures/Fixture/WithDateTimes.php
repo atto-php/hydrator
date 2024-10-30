@@ -70,7 +70,7 @@ final class WithDateTimes implements Fixture
             'dateTimeHydrationStrategy' =>
                 $this->dateTimeHydrationStrategy->format(DATE_ATOM),
             'passthroughHydrationStrategy' =>
-                $this->dateTimeHydrationStrategy,
+                $this->passthroughHydrationStrategy,
             'nullable' =>
                 $this->nullable?->format(DATE_ATOM),
             'nullablePassthroughHydrationStrategy' =>
