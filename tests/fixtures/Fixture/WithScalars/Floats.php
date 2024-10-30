@@ -20,7 +20,7 @@ final class Floats implements Fixture
     ) {
     }
 
-    /** @return Fixture[] */
+    /** @return Floats[] */
     public static function getExampleObjects(): array
     {
         return [

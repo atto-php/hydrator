@@ -20,7 +20,7 @@ final class Bools implements Fixture
     ) {
     }
 
-    /** @return Fixture[] */
+    /** @return Bools[] */
     public static function getExampleObjects(): array
     {
         return [

@@ -14,6 +14,8 @@ final class Bools implements Fixture
         private Fixture\WithScalars\Bools $basic,
         #[HydrationStrategy(HydrationStrategyType::Json)]
         private Fixture\WithScalars\Bools $jsonHydrationStrategy,
+        #[HydrationStrategy(HydrationStrategyType::Json)]
+        private ?Fixture\WithScalars\Bools $nullableJsonHydrationStrategy,
         #[HydrationStrategy(HydrationStrategyType::Merge)]
         private Fixture\WithScalars\Bools $mergeHydrationStrategy,
         #[HydrationStrategy(HydrationStrategyType::Nest)]
@@ -28,11 +30,23 @@ final class Bools implements Fixture
     {
         $subFixtures = Fixture\WithScalars\Bools::getExampleObjects();
 
+        $basicSubFixture = current($subFixtures);
+        assert ($basicSubFixture instanceof Fixture\WithScalars\Bools);
+
         $examples = [];
         foreach($subFixtures as $case => $subFixture) {
-            assert ($subFixture instanceof Fixture\WithScalars\Bools);
-            $examples[$case] = new self(...array_fill(0, 5, $subFixture));
+            $examples[$case] = new self(...array_fill(0, 6, $subFixture));
         }
+
+        $examples['basic subfixtures, but nullable properties set to null'] =
+            new self(
+                basic: $basicSubFixture,
+                jsonHydrationStrategy: $basicSubFixture,
+                nullableJsonHydrationStrategy: null,
+                mergeHydrationStrategy: $basicSubFixture,
+                nestHydrationStrategy: $basicSubFixture,
+                passthroughHydrationStrategy: $basicSubFixture,
+            );
 
         return $examples;
     }
@@ -40,10 +54,16 @@ final class Bools implements Fixture
     public function getExpectedObject(): Bools
     {
         return new Bools(
-            basic: $this->basic->getExpectedObject(),
-            jsonHydrationStrategy: $this->jsonHydrationStrategy->getExpectedObject(),
-            mergeHydrationStrategy: $this->mergeHydrationStrategy->getExpectedObject(),
-            nestHydrationStrategy: $this->nestHydrationStrategy->getExpectedObject(),
+            basic: $this->basic
+                ->getExpectedObject(),
+            jsonHydrationStrategy: $this->jsonHydrationStrategy
+                ->getExpectedObject(),
+            nullableJsonHydrationStrategy: $this->nullableJsonHydrationStrategy
+                ?->getExpectedObject(),
+            mergeHydrationStrategy: $this->mergeHydrationStrategy
+                ->getExpectedObject(),
+            nestHydrationStrategy: $this->nestHydrationStrategy
+                ->getExpectedObject(),
             passthroughHydrationStrategy: $this->passthroughHydrationStrategy,
         );
     }
@@ -60,20 +80,19 @@ final class Bools implements Fixture
         };
 
         return [
-            ...$mergeKeys(
-                'basic',
-                $this->basic->getExpectedArray()
-            ),
+            ...$mergeKeys('basic', $this->basic
+                ->getExpectedArray()),
             'jsonHydrationStrategy' =>
                 json_encode($this->jsonHydrationStrategy->getExpectedArray()),
-            ...$mergeKeys(
-                'mergeHydrationStrategy',
-                $this->mergeHydrationStrategy->getExpectedArray()
-            ),
+            'nullableJsonHydrationStrategy' => isset($this->nullableJsonHydrationStrategy) ?
+                json_encode($this->nullableJsonHydrationStrategy->getExpectedArray()) :
+                null,
+            ...$mergeKeys('mergeHydrationStrategy', $this->mergeHydrationStrategy
+                ->getExpectedArray()),
             'nestHydrationStrategy' =>
                 $this->nestHydrationStrategy->getExpectedArray(),
             'passthroughHydrationStrategy' =>
-                $this->passthroughHydrationStrategy
+                $this->passthroughHydrationStrategy,
         ];
     }
 }
