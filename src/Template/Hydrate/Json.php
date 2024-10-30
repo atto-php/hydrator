@@ -39,7 +39,7 @@ final class Json
     private function getHydrationFormat(string $valueReference): string
     {
         return sprintf(
-            '%1$s = $hydrate[\%2$s::class](json_decode(%3$s, true));',
+            '$hydrate[\%2$s::class](json_decode(%3$s, true));',
             $this->objectReference,
             $this->className,
             $valueReference,
