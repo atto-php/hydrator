@@ -15,7 +15,7 @@ final class Nest
     private readonly ObjectReference $objectReference;
 
     public function __construct(
-        private readonly string $propertyName,
+        string $propertyName,
         private readonly string $className,
         private readonly bool $nullable,
     ) {
