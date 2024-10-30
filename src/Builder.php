@@ -10,6 +10,7 @@ use Atto\Hydrator\Attribute\Subtype;
 use Atto\Hydrator\Attribute\HydrationStrategy;
 use Atto\Hydrator\Attribute\HydrationStrategyType;
 use Atto\Hydrator\Exception\AttributeNotApplicable;
+use Atto\Hydrator\Exception\StrategyNotApplicable;
 use Atto\Hydrator\Exception\TypeHintException;
 use Atto\Hydrator\Template\Closure;
 use Atto\Hydrator\Template\HydratorClass;
@@ -55,16 +56,11 @@ final class Builder
                 ;
 
                 if ($hydrationStrategy === HydrationStrategyType::Json) {
-                    throw new \Exception(
-                        'Collections do no support the Json hydration strategy. ' .
-                        'Use the Nest strategy with the Json serialisation strategy instead'
-                    );
+                    throw StrategyNotApplicable::collectionCannotUseJsonHydration($propertyName);
                 }
 
                 if ($hydrationStrategy === HydrationStrategyType::Merge) {
-                    throw new \Exception(
-                        'Collections do no support the Merge hydration strategy.'
-                    );
+                    throw StrategyNotApplicable::collectionCannotUseMergeHydration($propertyName);
                 }
 
             } else {
