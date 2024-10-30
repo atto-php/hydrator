@@ -9,7 +9,7 @@ use Atto\Hydrator\Template\ObjectReference;
 
 final class Merge
 {
-    private const UNMERGE = <<<'EOF'
+    private const HYDRATE_FORMAT = <<<'EOF'
         $hydrateData = [];
         foreach ($properties[\%1$s::class] as $key) {
             $dataKey = '%2$s' . '_' . $key;
@@ -17,27 +17,31 @@ final class Merge
                 $hydrateData[$key] = $values[$dataKey];
             }
         }
-        if (!empty($hydrateData)) {
-           %3$s = $hydrate[\%1$s::class]($hydrateData);
-        }        
+        %3$s     
     EOF;
 
     private ObjectReference $objectReference;
 
     public function __construct(
-        private readonly string|\Stringable $propertyName,
-        private readonly string $className
+        private readonly string $propertyName,
+        private readonly string $className,
+        private readonly bool $nullable,
     ) {
         $this->objectReference = new ObjectReference($this->propertyName);
     }
 
     public function __toString(): string
     {
+        $format = 'if (!empty($hydrateData)) {%1$s = $hydrate[\%2$s::class]($hydrateData);}';
+        if ($this->nullable) {
+            $format .= 'else {%1$s = null;}';
+        }
+
         return sprintf(
-            self::UNMERGE,
+            self::HYDRATE_FORMAT,
             $this->className,
             $this->propertyName,
-            $this->objectReference
+            sprintf($format, $this->objectReference, $this->className),
         );
     }
 }
