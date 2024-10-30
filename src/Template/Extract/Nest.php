@@ -4,44 +4,40 @@ declare(strict_types=1);
 
 namespace Atto\Hydrator\Template\Extract;
 
-use Atto\Hydrator\Attribute\SerializationStrategyType;
+use Atto\Hydrator\Template\ArrayReference;
 use Atto\Hydrator\Template\ObjectReference;
 
 final class Nest
 {
-    const EXTRACT_FORMAT = '$extract[\%2$s::class](%1$s)';
-    const SERIALISE = [
-        SerializationStrategyType::Json->value => 'json_encode(array_map(fn($value) => %s, %s))',
-        SerializationStrategyType::CommaDelimited->value => 'implode(\',\', array_map(fn($value) => %s, %s))'
-    ];
-    const ASSIGNMENT = '$values[\'%1$s\'] = %2$s;' . "\n";
-    private readonly ObjectReference $valueReference;
+    const EXTRACT_FORMAT = '$extract[\%1$s::class](%2$s)';
+
+    private readonly ArrayReference $arrayReference;
+    private readonly ObjectReference $objectReference;
 
     public function __construct(
         private readonly string $propertyName,
         private readonly string $className,
-        private readonly ?SerializationStrategyType $serialisationStrategy = null
+        private readonly bool $nullable,
     ) {
-        $this->valueReference = new ObjectReference($this->propertyName);
+        $this->arrayReference = new ArrayReference($propertyName);
+        $this->objectReference = new ObjectReference($propertyName);
     }
 
     public function __toString(): string
     {
-        if ($this->serialisationStrategy === null) {
-            return sprintf(
-                self::ASSIGNMENT,
-                $this->propertyName,
-                sprintf(self::EXTRACT_FORMAT, $this->valueReference, $this->className)
-            );
+        $format = 'if (isset(%1$s)) {%2$s = %3$s;}';
+        if ($this->nullable) {
+            $format .= 'else {%2$s = null;}';
         }
 
         return sprintf(
-            self::ASSIGNMENT,
-            $this->propertyName,
+            $format,
+            $this->objectReference,
+            $this->arrayReference,
             sprintf(
-                self::SERIALISE[$this->serialisationStrategy->value],
-                sprintf(self::EXTRACT_FORMAT, '$value', $this->className),
-                $this->valueReference
+                self::EXTRACT_FORMAT,
+                $this->className,
+                $this->objectReference,
             )
         );
     }

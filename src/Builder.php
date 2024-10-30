@@ -194,7 +194,11 @@ final class Builder
                 $typeName,
                 $nullable,
             ),
-            HydrationStrategyType::Nest => new Template\Hydrate\Nest($propertyName,$serialisationStrategy, $typeName),
+            HydrationStrategyType::Nest => new Template\Hydrate\Nest(
+                $propertyName,
+                $typeName,
+                $nullable,
+            ),
             HydrationStrategyType::Json => new Template\Hydrate\Json(
                 $propertyName,
                 $typeName,
@@ -236,7 +240,11 @@ final class Builder
                 $serialisationStrategy,
                 $nullable,
             ),
-            HydrationStrategyType::Nest => new Template\Extract\Nest($propertyName, $typeName, $serialisationStrategy),
+            HydrationStrategyType::Nest => new Template\Extract\Nest(
+                $propertyName,
+                $typeName,
+                $nullable,
+            ),
             HydrationStrategyType::Json => new Template\Extract\Json(
                 $propertyName,
                 $typeName,
