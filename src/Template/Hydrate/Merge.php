@@ -16,8 +16,7 @@ final class Merge
             if (array_key_exists($dataKey, $values)) {
                 $hydrateData[$key] = $values[$dataKey];
             }
-        }
-        %3$s     
+        }  
     EOF;
 
     private ObjectReference $objectReference;
@@ -32,16 +31,24 @@ final class Merge
 
     public function __toString(): string
     {
-        $format = 'if (!empty($hydrateData)) {%1$s = $hydrate[\%2$s::class]($hydrateData);}';
         if ($this->nullable) {
-            $format .= 'else {%1$s = null;}';
+            $format = 'if (!array_key_exists(\'%1$s\', $values)) {' .
+                '%4$s' .
+                '%2$s = $hydrate[\%3$s::class]($hydrateData);' .
+                '} else {' .
+                '%2$s = null;' .
+                '}';
+        } else {
+            $format = '%4$s' . '
+            %2$s = $hydrate[\%3$s::class]($hydrateData);';
         }
 
         return sprintf(
-            self::HYDRATE_FORMAT,
-            $this->className,
+            $format,
             $this->propertyName,
-            sprintf($format, $this->objectReference, $this->className),
+            $this->objectReference,
+            $this->className,
+            sprintf(self::HYDRATE_FORMAT, $this->className, $this->propertyName),
         );
     }
 }
