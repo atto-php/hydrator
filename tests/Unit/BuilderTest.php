@@ -240,5 +240,14 @@ final class BuilderTest extends \PHPUnit\Framework\TestCase
                 private array $mergeArray;
             },
         ];
+
+        yield 'array with passthrough hydration specifying a serialisation strategy' => [
+            StrategyNotApplicable::passthroughHydrationCannotSerialise('passthroughArray'),
+            new class () {
+                #[HydrationStrategy(HydrationStrategyType::Passthrough)]
+                #[SerializationStrategy(SerializationStrategyType::Json)]
+                private array $passthroughArray;
+            },
+        ];
     }
 }

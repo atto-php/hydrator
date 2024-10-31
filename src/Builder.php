@@ -63,6 +63,13 @@ final class Builder
                     throw StrategyNotApplicable::collectionCannotUseMergeHydration($propertyName);
                 }
 
+                if (
+                    $hydrationStrategy === HydrationStrategyType::Passthrough
+                    && $this->hasSerialisationStrategy($property)
+                ) {
+                    throw StrategyNotApplicable::passthroughHydrationCannotSerialise($propertyName);
+                }
+
             } else {
                 if ($this->getSubtype($property) !== null) {
                     throw AttributeNotApplicable::subtype($typeName, $propertyName);
