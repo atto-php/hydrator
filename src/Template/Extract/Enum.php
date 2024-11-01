@@ -10,5 +10,5 @@ final class Enum
 {
     const EXTRACT_FORMAT = '%s->value';
 
-    use BasicExtract;
+    use Basic;
 }

@@ -10,61 +10,23 @@ use Atto\Hydrator\Template\ObjectReference;
 
 final class StringWrapper
 {
-    private const HYDRATE_FORMAT = 'new \%2$s(%1$s)';
+    use Basic;
 
-    private const DESERIALISE = [
-        SerializationStrategyType::Json->value => 'array_map(fn($value) => %s, json_decode(%s, true))',
-        SerializationStrategyType::CommaDelimited->value => 'array_map(fn($value) => %s, explode(\',\', %s))'
-    ];
-    private const ASSIGNMENT = '%s = %s;';
-    private const CHECKS = <<<'EOF'
-        if (
-            isset(%1$s) ||
-            isset(%2$s) &&
-            array_key_exists('%3$s', $values)
-        ) {
-            %4$s
-        }
-        EOF;
-
-    private ArrayReference $arrayReference;
-    private ObjectReference $objectReference;
+    private readonly ArrayReference $arrayReference;
+    private readonly ObjectReference $objectReference;
 
     public function __construct(
-        private readonly string|\Stringable $propertyName,
+        string $propertyName,
         private readonly ?SerializationStrategyType $serializationStrategy,
-        private readonly string $className
+        private readonly string $className,
+        private readonly bool $nullable,
     ) {
-        $this->arrayReference = new ArrayReference($this->propertyName);
-        $this->objectReference = new ObjectReference($this->propertyName);
+        $this->arrayReference = new ArrayReference($propertyName);
+        $this->objectReference = new ObjectReference($propertyName);
     }
 
-    public function __toString(): string
+    private function getHydrationFormat(string $valueReference): string
     {
-        if ($this->serializationStrategy === null) {
-            $assignment = sprintf(
-                self::ASSIGNMENT,
-                $this->objectReference,
-                sprintf(self::HYDRATE_FORMAT, $this->arrayReference, $this->className)
-            );
-        } else {
-            $assignment = sprintf(
-                self::ASSIGNMENT,
-                $this->objectReference,
-                sprintf(
-                    self::DESERIALISE[$this->serializationStrategy->value],
-                    sprintf(self::HYDRATE_FORMAT, '$value', $this->className),
-                    $this->arrayReference
-                ));
-        }
-
-        return
-            sprintf(
-                self::CHECKS,
-                $this->arrayReference,
-                $this->objectReference,
-                $this->propertyName,
-                $assignment
-            );
+        return sprintf('new \%s(%s)', $this->className, $valueReference);
     }
 }

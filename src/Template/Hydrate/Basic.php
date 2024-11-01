@@ -8,25 +8,16 @@ use Atto\Hydrator\Attribute\SerializationStrategyType;
 use Atto\Hydrator\Template\ArrayReference;
 use Atto\Hydrator\Template\ObjectReference;
 
-final class Primitive
+trait Basic
 {
     private const DESERIALISE = [
-        SerializationStrategyType::Json->value => 'json_decode(%s, true)',
-        SerializationStrategyType::CommaDelimited->value => 'explode(\',\', %s)',
-        SerializationStrategyType::PipeDelimited->value => 'explode(\'|\', %s)',
+        SerializationStrategyType::Json->value =>
+            'array_map(fn($value) => %s, json_decode(%s, true))',
+        SerializationStrategyType::CommaDelimited->value =>
+            'array_map(fn($value) => %s, explode(\',\', %s))',
+        SerializationStrategyType::PipeDelimited->value =>
+            'array_map(fn($value) => %s, explode(\'|\', %s))',
     ];
-
-    private ArrayReference $arrayReference;
-    private ObjectReference $objectReference;
-
-    public function __construct(
-        private readonly string $propertyName,
-        private readonly ?SerializationStrategyType $serializationStrategy,
-        private readonly bool $nullable,
-    ) {
-        $this->arrayReference = new ArrayReference($this->propertyName);
-        $this->objectReference = new ObjectReference($this->propertyName);
-    }
 
     public function __toString(): string
     {
@@ -40,9 +31,10 @@ final class Primitive
             $this->arrayReference,
             $this->objectReference,
             $this->serializationStrategy === null ?
-                $this->arrayReference :
+                $this->getHydrationFormat((string) $this->arrayReference) :
                 sprintf(
                     self::DESERIALISE[$this->serializationStrategy->value],
+                    $this->getHydrationFormat('$value'),
                     $this->arrayReference
                 ),
         );

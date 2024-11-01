@@ -86,14 +86,14 @@ final class Builder
                 $propertyName,
                 $hydrationStrategy,
                 $serialisationStrategy,
-                (! $property->getType()->allowsNull() || $property->hasDefaultValue()),
+                $property->getType()->allowsNull(),
             ));
             $extractCode->addPropertyAccessor($this->extractFor(
                 $typeName,
                 $propertyName,
                 $hydrationStrategy,
                 $serialisationStrategy,
-                ! ($property->getType()->allowsNull() || $property->hasDefaultValue()),
+                $property->getType()->allowsNull(),
             ));
 
             if ($hydrationStrategy->requiresSubHydrator()) {
@@ -168,17 +168,51 @@ final class Builder
         string|\Stringable $propertyName,
         HydrationStrategyType $hydrationStrategy,
         ?SerializationStrategyType $serialisationStrategy,
-        bool $needsChecks,
+        bool $nullable,
     ): \Stringable {
         return match ($hydrationStrategy) {
-            HydrationStrategyType::Primitive => new Template\Hydrate\Primitive($propertyName, $serialisationStrategy, $needsChecks),
-            HydrationStrategyType::Enum => new Template\Hydrate\Enum($propertyName, $serialisationStrategy, $typeName),
-            HydrationStrategyType::DateTime => new Template\Hydrate\DateTime($propertyName, $serialisationStrategy, $typeName),
-            HydrationStrategyType::String => new Template\Hydrate\StringWrapper($propertyName, $serialisationStrategy, $typeName),
-            HydrationStrategyType::Nest => new Template\Hydrate\Nest($propertyName,$serialisationStrategy, $typeName),
-            HydrationStrategyType::Json => new Template\Hydrate\Json($propertyName, $typeName),
-            HydrationStrategyType::Merge => new Template\Hydrate\Merge($propertyName, $typeName),
-            HydrationStrategyType::Passthrough => new Template\Hydrate\Passthrough($propertyName)
+            HydrationStrategyType::Primitive => new Template\Hydrate\Primitive(
+                $propertyName,
+                $serialisationStrategy,
+                $nullable
+            ),
+            HydrationStrategyType::Enum => new Template\Hydrate\Enum(
+                $propertyName,
+                $serialisationStrategy,
+                $typeName,
+                $nullable,
+            ),
+            HydrationStrategyType::DateTime => new Template\Hydrate\DateTime(
+                $propertyName,
+                $serialisationStrategy,
+                $typeName,
+                $nullable,
+            ),
+            HydrationStrategyType::String => new Template\Hydrate\StringWrapper(
+                $propertyName,
+                $serialisationStrategy,
+                $typeName,
+                $nullable,
+            ),
+            HydrationStrategyType::Nest => new Template\Hydrate\Nest(
+                $propertyName,
+                $typeName,
+                $nullable,
+            ),
+            HydrationStrategyType::Json => new Template\Hydrate\Json(
+                $propertyName,
+                $typeName,
+                $nullable,
+            ),
+            HydrationStrategyType::Merge => new Template\Hydrate\Merge(
+                $propertyName,
+                $typeName,
+                $nullable,
+            ),
+            HydrationStrategyType::Passthrough => new Template\Hydrate\Passthrough(
+                $propertyName,
+                $nullable,
+            )
         };
     }
 
@@ -187,21 +221,48 @@ final class Builder
         string|\Stringable $propertyName,
         HydrationStrategyType $hydrationStrategy,
         ?SerializationStrategyType $serialisationStrategy,
-        bool $needsChecks,
+        bool $nullable,
     ): \Stringable {
         return match ($hydrationStrategy) {
             HydrationStrategyType::Primitive => new Template\Extract\Primitive(
                 $propertyName,
                 $serialisationStrategy,
-                $needsChecks,
+                $nullable,
             ),
-            HydrationStrategyType::Enum => new Template\Extract\Enum($propertyName, $serialisationStrategy),
-            HydrationStrategyType::DateTime => new Template\Extract\DateTime($propertyName, $serialisationStrategy),
-            HydrationStrategyType::String => new Template\Extract\StringWrapper($propertyName, $serialisationStrategy),
-            HydrationStrategyType::Nest => new Template\Extract\Nest($propertyName, $typeName, $serialisationStrategy),
-            HydrationStrategyType::Json => new Template\Extract\Json($propertyName, $typeName),
-            HydrationStrategyType::Merge => new Template\Extract\Merge($propertyName, $typeName),
-            HydrationStrategyType::Passthrough => new Template\Extract\Passthrough($propertyName)
+            HydrationStrategyType::Enum => new Template\Extract\Enum(
+                $propertyName,
+                $serialisationStrategy,
+                $nullable,
+            ),
+            HydrationStrategyType::DateTime => new Template\Extract\DateTime(
+                $propertyName,
+                $serialisationStrategy,
+                $nullable,
+            ),
+            HydrationStrategyType::String => new Template\Extract\StringWrapper(
+                $propertyName,
+                $serialisationStrategy,
+                $nullable,
+            ),
+            HydrationStrategyType::Nest => new Template\Extract\Nest(
+                $propertyName,
+                $typeName,
+                $nullable,
+            ),
+            HydrationStrategyType::Json => new Template\Extract\Json(
+                $propertyName,
+                $typeName,
+                $nullable,
+            ),
+            HydrationStrategyType::Merge => new Template\Extract\Merge(
+                $propertyName,
+                $typeName,
+                $nullable,
+            ),
+            HydrationStrategyType::Passthrough => new Template\Extract\Passthrough(
+                $propertyName,
+                $nullable,
+            )
         };
     }
 }

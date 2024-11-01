@@ -11,6 +11,9 @@ use Atto\Hydrator\TestFixtures\Mocks\Enums\IntDummy;
 
 final class IntBacked implements Fixture
 {
+    private IntDummy $unset;
+    private ?IntDummy $unsetNullable;
+
     /**
      * @param IntDummy $enumHydrationStrategy
      * The hydrator identifies enums
@@ -21,7 +24,10 @@ final class IntBacked implements Fixture
         private IntDummy $basic,
         #[HydrationStrategy(HydrationStrategyType::Enum)]
         private IntDummy $enumHydrationStrategy,
+        private ?IntDummy $nullable,
         private IntDummy $withDefault = IntDummy::Zero,
+        private ?IntDummy $nullableWithDefault = IntDummy::Zero,
+        private ?IntDummy $nullableWithNullDefault = null,
     ) {
     }
 
@@ -29,18 +35,36 @@ final class IntBacked implements Fixture
     public static function getExampleObjects(): array
     {
         return [
-            'Zero' => new self(...array_fill(0, 3, IntDummy::Zero)),
-            'One' => new self(...array_fill(0, 3, IntDummy::One)),
-            'rely on default' => new self(...array_fill(0, 2, IntDummy::One))
+            'Zero' => new self(...array_fill(0, 4, IntDummy::Zero)),
+            'One' => new self(...array_fill(0, 4, IntDummy::One)),
+            'set nullable properties to null' => new self(
+                IntDummy::One,
+                IntDummy::One,
+                null,
+                IntDummy::One,
+            ),
+            'rely on default' => new self(...array_fill(0, 3, IntDummy::One))
         ];
+    }
+
+    public function getExpectedObject(): IntBacked
+    {
+        $expected = clone $this;
+        $expected->unsetNullable = null;
+        return $expected;
     }
 
     public function getExpectedArray(): array
     {
         return [
+            // unset will not be here
+            'unsetNullable' => null,
             'basic' => $this->basic->value,
             'enumHydrationStrategy' => $this->enumHydrationStrategy->value,
+            'nullable' => $this->nullable?->value,
             'withDefault' => $this->withDefault->value,
+            'nullableWithDefault' => $this->nullableWithDefault?->value,
+            'nullableWithNullDefault' => $this->nullableWithNullDefault?->value,
         ];
     }
 }

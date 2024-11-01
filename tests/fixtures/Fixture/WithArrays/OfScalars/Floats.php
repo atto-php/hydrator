@@ -45,6 +45,11 @@ final class Floats implements Fixture
         ];
     }
 
+    public function getExpectedObject(): Fixture
+    {
+        return $this;
+    }
+
     public function getExpectedArray(): array
     {
         return [

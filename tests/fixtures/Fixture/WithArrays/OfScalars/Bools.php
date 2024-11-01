@@ -42,10 +42,16 @@ final class Bools implements Fixture
 
         return [
             //'empty array' => $newSelf([]),
+            '[null]' => $newSelf([null]),
             '[false]' => $newSelf([false]),
             '[true]' => $newSelf([true]),
             '[true, false, true]' => $newSelf([true, false, true]),
         ];
+    }
+
+    public function getExpectedObject(): Fixture
+    {
+        return $this;
     }
 
     public function getExpectedArray(): array

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Atto\Hydrator\Template\Extract;
 
 use Atto\Hydrator\Attribute\SerializationStrategyType;
+use Atto\Hydrator\Template\ArrayReference;
 use Atto\Hydrator\Template\ObjectReference;
 
 final class Primitive
@@ -14,37 +15,35 @@ final class Primitive
         SerializationStrategyType::CommaDelimited->value => 'implode(\',\', %s)',
         SerializationStrategyType::PipeDelimited->value => 'implode(\'|\', %s)',
     ];
-    private const SERIALISE_GUARDED = [
-        SerializationStrategyType::Json->value => 'is_null(%1$s) ? null : json_encode(%1$s)',
-        SerializationStrategyType::CommaDelimited->value => 'is_null(%1$s) ? null : implode(\',\', %1$s)',
-        SerializationStrategyType::PipeDelimited->value => 'is_null(%1$s) ? null : implode(\'|\', %1$s)',
-    ];
 
-    private const ASSIGNMENT = '$values[\'%1$s\'] = %2$s;' . "\n";
-    private const ASSIGNMENT_GUARDED = '$values[\'%1$s\'] = %2$s ?? null;' . "\n";
-
-    private readonly ObjectReference $valueReference;
+    private readonly ArrayReference $arrayReference;
+    private readonly ObjectReference $objectReference;
 
     public function __construct(
         private readonly string $propertyName,
         private readonly ?SerializationStrategyType $serialisationStrategy,
-        private readonly bool $needsChecks,
+        private readonly bool $nullable,
     ) {
-        $this->valueReference = new ObjectReference($this->propertyName);
+        $this->arrayReference = new ArrayReference($this->propertyName);
+        $this->objectReference = new ObjectReference($this->propertyName);
     }
 
     public function __toString(): string
     {
+        $format = 'if (isset(%1$s)) {%2$s = %3$s;}';
+        if ($this->nullable) {
+            $format .= 'else {%2$s = null;}';
+        }
+
         return sprintf(
-            $this->needsChecks ? self::ASSIGNMENT_GUARDED : self::ASSIGNMENT,
-            $this->propertyName,
+            $format,
+            $this->objectReference,
+            $this->arrayReference,
             $this->serialisationStrategy === null ?
-                $this->valueReference :
+                $this->objectReference :
                 sprintf(
-                    $this->needsChecks ?
-                        self::SERIALISE_GUARDED[$this->serialisationStrategy->value] :
-                        self::SERIALISE[$this->serialisationStrategy->value],
-                    $this->valueReference
+                    self::SERIALISE[$this->serialisationStrategy->value],
+                    $this->objectReference,
                 ),
         );
     }

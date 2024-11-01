@@ -11,5 +11,5 @@ final class DateTime
 {
     const EXTRACT_FORMAT = '%s->format(\DATE_ATOM)';
 
-    use BasicExtract;
+    use Basic;
 }

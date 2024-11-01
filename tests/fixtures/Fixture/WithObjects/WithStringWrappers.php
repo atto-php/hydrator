@@ -4,27 +4,33 @@ declare(strict_types=1);
 
 namespace Atto\Hydrator\TestFixtures\Fixture\WithObjects;
 
+use Atto\Hydrator\Attribute\Hydratable;
 use Atto\Hydrator\TestFixtures\Fixture;
 
+#[Hydratable]
 final class WithStringWrappers implements Fixture
 {
     public function __construct(
         private Fixture\WithStringWrappers $basic,
+        private ?Fixture\WithStringWrappers $nullable,
     ) {
     }
 
     /** @return Fixture[] */
     public static function getExampleObjects(): array
     {
-        $subFixtures = Fixture\WithStringWrappers::getExampleObjects();
+        return array_map(
+            fn ($subFixture) => new self(...array_fill(0, 2, $subFixture)),
+            Fixture\WithStringWrappers::getExampleObjects(),
+        );
+    }
 
-        $examples = [];
-        foreach($subFixtures as $case => $subFixture) {
-            assert ($subFixture instanceof Fixture\WithStringWrappers);
-            $examples[$case] = new self($subFixture);
-        }
-
-        return $examples;
+    public function getExpectedObject(): WithStringWrappers
+    {
+        return new self(
+            basic: $this->basic->getExpectedObject(),
+            nullable: $this->nullable?->getExpectedObject(),
+        );
     }
 
     public function getExpectedArray(): array
@@ -40,6 +46,7 @@ final class WithStringWrappers implements Fixture
 
         return [
             ...$mergeKeys('basic', $this->basic->getExpectedArray()),
+            ...isset($this->nullable) ? $mergeKeys('nullable', $this->nullable->getExpectedArray()) : [],
         ];
     }
 }

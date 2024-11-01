@@ -8,6 +8,9 @@ use Atto\Hydrator\TestFixtures\Fixture;
 
 final class Strings implements Fixture
 {
+    private string $unset;
+    private ?string $unsetNullable;
+
     public function __construct(
         private string $basic,
         private ?string $nullable,
@@ -30,14 +33,24 @@ final class Strings implements Fixture
         ];
     }
 
+    public function getExpectedObject(): Strings
+    {
+        $expectedObject = clone $this;
+        $expectedObject->unsetNullable = null;
+
+        return $expectedObject;
+    }
+
     public function getExpectedArray(): array
     {
         return [
+            // unset will not be here
+            'unsetNullable' => null,
             'basic' => $this->basic,
             'nullable' => $this->nullable,
             'withDefault' => $this->withDefault,
             'nullableWithDefault' => $this->nullableWithDefault,
-            'nullableWithNullDefault' => $this->nullableWithNullDefault
+            'nullableWithNullDefault' => $this->nullableWithNullDefault,
         ];
     }
 }

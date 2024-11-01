@@ -8,6 +8,9 @@ use Atto\Hydrator\TestFixtures\Fixture;
 
 final class Integers implements Fixture
 {
+    private int $unset;
+    private ?int $unsetNullable;
+
     public function __construct(
         private int $basic,
         private ?int $nullable,
@@ -28,14 +31,24 @@ final class Integers implements Fixture
         ];
     }
 
+    public function getExpectedObject(): Integers
+    {
+        $expectedObject = clone $this;
+        $expectedObject->unsetNullable = null;
+
+        return $expectedObject;
+    }
+
     public function getExpectedArray(): array
     {
         return [
+            // unset will not be here
+            'unsetNullable' => null,
             'basic' => $this->basic,
             'nullable' => $this->nullable,
             'withDefault' => $this->withDefault,
             'nullableWithDefault' => $this->nullableWithDefault,
-            'nullableWithNullDefault' => $this->nullableWithNullDefault
+            'nullableWithNullDefault' => $this->nullableWithNullDefault,
         ];
     }
 }

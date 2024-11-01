@@ -8,6 +8,9 @@ use Atto\Hydrator\TestFixtures\Fixture;
 
 final class Floats implements Fixture
 {
+    private float $unset;
+    private ?float $unsetNullable;
+
     public function __construct(
         private float $basic,
         private ?float $nullable,
@@ -17,7 +20,7 @@ final class Floats implements Fixture
     ) {
     }
 
-    /** @return Fixture[] */
+    /** @return Floats[] */
     public static function getExampleObjects(): array
     {
         return [
@@ -28,14 +31,24 @@ final class Floats implements Fixture
         ];
     }
 
+    public function getExpectedObject(): Floats
+    {
+        $expectedObject = clone $this;
+        $expectedObject->unsetNullable = null;
+
+        return $expectedObject;
+    }
+
     public function getExpectedArray(): array
     {
         return [
+            // unset will not be here
+            'unsetNullable' => null,
             'basic' => $this->basic,
             'nullable' => $this->nullable,
             'withDefault' => $this->withDefault,
             'nullableWithDefault' => $this->nullableWithDefault,
-            'nullableWithNullDefault' => $this->nullableWithNullDefault
+            'nullableWithNullDefault' => $this->nullableWithNullDefault,
         ];
     }
 }
