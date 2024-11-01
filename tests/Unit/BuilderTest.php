@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace Atto\Hydrator\Tests\Unit;
 
+use Atto\Hydrator\Attribute\HydrationStrategy;
+use Atto\Hydrator\Attribute\HydrationStrategyType;
 use Atto\Hydrator\Attribute\SerializationStrategy;
 use Atto\Hydrator\Attribute\SerializationStrategyType;
 use Atto\Hydrator\Attribute\Subtype;
 use Atto\Hydrator\Builder;
 use Atto\Hydrator\Exception\AttributeNotApplicable;
+use Atto\Hydrator\Exception\StrategyNotApplicable;
 use Atto\Hydrator\Exception\TypeHintException;
 use Atto\Hydrator\TestFixtures\Mocks\Enums\StringDummy;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -18,6 +21,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 
 #[CoversClass(Builder::class)]
 #[CoversClass(AttributeNotApplicable::class)]
+#[CoversClass(StrategyNotApplicable::class)]
 #[CoversClass(TypeHintException::class)]
 #[UsesClass(\Atto\Hydrator\Attribute\Subtype::class)]
 #[UsesClass(\Atto\Hydrator\ClassName::class)]
@@ -86,6 +90,19 @@ final class BuilderTest extends \PHPUnit\Framework\TestCase
         self::expectExceptionObject(
             AttributeNotApplicable::serialisationStrategy($propertyType, $propertyName)
         );
+
+        $sut->build($object::class);
+    }
+
+    #[Test]
+    #[DataProvider('provideNonApplicableStrategies')]
+    public function itThrowsOnNonApplicableStrategies(
+        StrategyNotApplicable $expected,
+        object $object,
+    ): void {
+        $sut = new Builder();
+
+        self::expectExceptionObject($expected);
 
         $sut->build($object::class);
     }
@@ -202,6 +219,35 @@ final class BuilderTest extends \PHPUnit\Framework\TestCase
             },
             'enumProperty',
             StringDummy::class,
+        ];
+    }
+
+    /** @return \Generator<array{ 0:StrategyNotApplicable, 1:object }> */
+    public static function provideNonApplicableStrategies(): \Generator
+    {
+        yield 'array with json hydration' => [
+            StrategyNotApplicable::collectionCannotUseJsonHydration('jsonArray'),
+            new class () {
+                #[HydrationStrategy(HydrationStrategyType::Json)]
+                private array $jsonArray;
+            },
+        ];
+
+        yield 'array with merge hydration' => [
+            StrategyNotApplicable::collectionCannotUseMergeHydration('mergeArray'),
+            new class () {
+                #[HydrationStrategy(HydrationStrategyType::Merge)]
+                private array $mergeArray;
+            },
+        ];
+
+        yield 'array with passthrough hydration specifying a serialisation strategy' => [
+            StrategyNotApplicable::passthroughHydrationCannotSerialise('passthroughArray'),
+            new class () {
+                #[HydrationStrategy(HydrationStrategyType::Passthrough)]
+                #[SerializationStrategy(SerializationStrategyType::Json)]
+                private array $passthroughArray;
+            },
         ];
     }
 }
