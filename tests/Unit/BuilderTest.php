@@ -11,6 +11,7 @@ use Atto\Hydrator\Attribute\SerializationStrategyType;
 use Atto\Hydrator\Attribute\Subtype;
 use Atto\Hydrator\Builder;
 use Atto\Hydrator\Exception\AttributeNotApplicable;
+use Atto\Hydrator\Exception\AttributeRequired;
 use Atto\Hydrator\Exception\StrategyNotApplicable;
 use Atto\Hydrator\Exception\TypeHintException;
 use Atto\Hydrator\TestFixtures\Mocks\Enums\StringDummy;
@@ -21,6 +22,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 
 #[CoversClass(Builder::class)]
 #[CoversClass(AttributeNotApplicable::class)]
+#[CoversClass(AttributeRequired::class)]
 #[CoversClass(StrategyNotApplicable::class)]
 #[CoversClass(TypeHintException::class)]
 #[UsesClass(\Atto\Hydrator\Attribute\Subtype::class)]
@@ -71,9 +73,21 @@ final class BuilderTest extends \PHPUnit\Framework\TestCase
     ): void {
         $sut = new Builder();
 
-        self::expectExceptionObject(
-            AttributeNotApplicable::subtype($propertyType, $propertyName)
-        );
+        self::expectExceptionObject(AttributeNotApplicable::subtype($propertyType, $propertyName));
+
+        $sut->build($object::class);
+    }
+
+    #[Test]
+    #[DataProvider('provideRequiredSubtypes')]
+    public function itThrowsOnRequiredSubtypes(
+        object $object,
+        string $propertyName,
+        string $propertyType,
+    ): void {
+        $sut = new Builder();
+
+        self::expectExceptionObject(AttributeRequired::subtype($propertyType, $propertyName));
 
         $sut->build($object::class);
     }
@@ -166,6 +180,16 @@ final class BuilderTest extends \PHPUnit\Framework\TestCase
     }
 
     /** @return \Generator<array{ 0:object, 1:string, 2:string }> */
+    public static function provideRequiredSubtypes(): \Generator
+    {
+        yield 'array with json hydration' => [
+            new class () {private array $ambiguousArray;},
+            'ambiguousArray',
+            'array'
+        ];
+    }
+
+    /** @return \Generator<array{ 0:object, 1:string, 2:string }> */
     public static function provideNonApplicableSerialisationStrategies(): \Generator {
         yield 'bool property' => [
             new class () {
@@ -229,6 +253,7 @@ final class BuilderTest extends \PHPUnit\Framework\TestCase
             StrategyNotApplicable::collectionCannotUseJsonHydration('jsonArray'),
             new class () {
                 #[HydrationStrategy(HydrationStrategyType::Json)]
+                #[Subtype('string')]
                 private array $jsonArray;
             },
         ];
@@ -237,6 +262,7 @@ final class BuilderTest extends \PHPUnit\Framework\TestCase
             StrategyNotApplicable::collectionCannotUseMergeHydration('mergeArray'),
             new class () {
                 #[HydrationStrategy(HydrationStrategyType::Merge)]
+                #[Subtype('string')]
                 private array $mergeArray;
             },
         ];
@@ -246,6 +272,7 @@ final class BuilderTest extends \PHPUnit\Framework\TestCase
             new class () {
                 #[HydrationStrategy(HydrationStrategyType::Passthrough)]
                 #[SerializationStrategy(SerializationStrategyType::Json)]
+                #[Subtype('string')]
                 private array $passthroughArray;
             },
         ];
