@@ -10,6 +10,7 @@ use Atto\Hydrator\Attribute\Subtype;
 use Atto\Hydrator\Attribute\HydrationStrategy;
 use Atto\Hydrator\Attribute\HydrationStrategyType;
 use Atto\Hydrator\Exception\AttributeNotApplicable;
+use Atto\Hydrator\Exception\AttributeRequired;
 use Atto\Hydrator\Exception\StrategyNotApplicable;
 use Atto\Hydrator\Exception\TypeHintException;
 use Atto\Hydrator\Template\Closure;
@@ -50,6 +51,9 @@ final class Builder
             $serialisationStrategy = null;
 
             if ($typeName === 'array') {
+                $typeName = $this->getSubtype($property) ??
+                    throw AttributeRequired::subtype($typeName, $propertyName);
+
                 $serialisationStrategy = $this->getSerialisationStrategy($property);
                 $hydrationStrategy = $this->getHydrationStrategy($property) ??
                     $this->typeNameToHydrationStrategy($this->getSubtype($property))
