@@ -8,7 +8,7 @@ use Atto\Hydrator\Attribute\SerializationStrategy;
 use Atto\Hydrator\Attribute\SerializationStrategyType;
 use Atto\Hydrator\Attribute\Subtype;
 use Atto\Hydrator\TestFixtures\Fixture;
-use Atto\Hydrator\TestFixtures\Mocks\Enums\{StringDummy};
+use Atto\Hydrator\TestFixtures\Mocks\Enums\StringDummy;
 
 final class StringBacked implements Fixture
 {

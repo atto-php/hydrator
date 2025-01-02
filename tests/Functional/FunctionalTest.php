@@ -16,8 +16,8 @@ final class FunctionalTest extends TestCase
 {
     private const FIXTURES = [
         // @TODO Fix subtypes in order to support enums
-        //Fixture\WithArrays\OfEnums\IntBacked::class,
-        //Fixture\WithArrays\OfEnums\StringBacked::class,
+        Fixture\WithArrays\OfEnums\IntBacked::class,
+        Fixture\WithArrays\OfEnums\StringBacked::class,
         Fixture\WithArrays\OfObjects\WithScalars\Bools::class,
         Fixture\WithArrays\OfScalars\Bools::class,
         Fixture\WithArrays\OfScalars\Floats::class,

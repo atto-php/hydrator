@@ -8,7 +8,7 @@ use Atto\Hydrator\Attribute\SerializationStrategy;
 use Atto\Hydrator\Attribute\SerializationStrategyType;
 use Atto\Hydrator\Attribute\Subtype;
 use Atto\Hydrator\TestFixtures\Fixture;
-use Atto\Hydrator\TestFixtures\Mocks\Enums\{IntDummy};
+use Atto\Hydrator\TestFixtures\Mocks\Enums\IntDummy;
 
 final class IntBacked implements Fixture
 {
