@@ -10,13 +10,13 @@ use Atto\Hydrator\Template\ObjectReference;
 
 final class Nest
 {
-    private const HYDRATE_FORMAT = '$hydrate[\%2$s::class](%1$s)';
-
+    use Basic;
     private ArrayReference $arrayReference;
     private ObjectReference $objectReference;
 
     public function __construct(
         private readonly string $propertyName,
+        private readonly ?SerializationStrategyType $serializationStrategy,
         private readonly string $className,
         private readonly bool $nullable,
     ) {
@@ -24,18 +24,8 @@ final class Nest
         $this->objectReference = new ObjectReference($this->propertyName);
     }
 
-    public function __toString(): string
+    private function getHydrationFormat(string $valueReference): string
     {
-        $format = 'if (isset(%1$s)) {%2$s = %3$s;}';
-        if ($this->nullable) {
-            $format .= 'else {%2$s = null;}';
-        }
-
-        return sprintf(
-            $format,
-            $this->arrayReference,
-            $this->objectReference,
-            sprintf(self::HYDRATE_FORMAT, $this->arrayReference, $this->className)
-        );
+        return sprintf('$hydrate[\%2$s::class](%1$s)', $valueReference, $this->className);
     }
 }

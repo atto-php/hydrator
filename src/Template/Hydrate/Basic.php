@@ -5,18 +5,25 @@ declare(strict_types=1);
 namespace Atto\Hydrator\Template\Hydrate;
 
 use Atto\Hydrator\Attribute\SerializationStrategyType;
-use Atto\Hydrator\Template\ArrayReference;
-use Atto\Hydrator\Template\ObjectReference;
 
 trait Basic
 {
     private const DESERIALISE = [
         SerializationStrategyType::Json->value =>
-            'array_map(fn($value) => %s, json_decode(%s, true))',
+            'array_map('
+            . 'fn($value) => %1$s, '
+            . 'json_decode(%2$s, true)'
+            . ')',
         SerializationStrategyType::CommaDelimited->value =>
-            'array_map(fn($value) => %s, explode(\',\', %s))',
+            'array_map('
+            . 'fn($value) => %1$s, '
+            . '%2$s === \'\' ? [] : explode(\',\', %2$s)'
+            . ')',
         SerializationStrategyType::PipeDelimited->value =>
-            'array_map(fn($value) => %s, explode(\'|\', %s))',
+            'array_map('
+            . 'fn($value) => %1$s, '
+            . '%2$s === \'\' ? [] : explode(\'|\', %2$s)'
+            . ')',
     ];
 
     public function __toString(): string

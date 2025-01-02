@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace Atto\Hydrator\TestFixtures\Fixture\WithArrays\OfObjects\WithScalars;
 
-use Atto\Hydrator\{Attribute\HydrationStrategy,
-    Attribute\HydrationStrategyType,
-    Attribute\Subtype,
-    TestFixtures\Fixture};
-use Atto\Hydrator\Attribute\SerializationStrategy;
-use Atto\Hydrator\Attribute\SerializationStrategyType;
+use Atto\Hydrator\Attribute\HydrationStrategy;
+use Atto\Hydrator\Attribute\HydrationStrategyType;
+use Atto\Hydrator\Attribute\Subtype;
+use Atto\Hydrator\TestFixtures\Fixture;
+use RuntimeException;
 
 final class Bools implements Fixture
 {
+    /**
+     * @param array<Fixture\WithScalars\Bools> $basic
+     */
     public function __construct(
         #[Subtype(Fixture\WithScalars\Bools::class)]
         #[HydrationStrategy(HydrationStrategyType::Nest)]
@@ -27,27 +29,26 @@ final class Bools implements Fixture
 
         return [
             'empty array' => new self([]),
-            'single item' => new self([$subFixtures[0]]),
+            'single item' => new self([current($subFixtures)
+                ?: throw new RuntimeException('subfixture missing')]),
             'many items' => new self($subFixtures),
         ];
     }
 
     public function getExpectedObject(): Bools
     {
-        return $this;
+        return new self(
+            basic: array_map(fn($b) => $b->getExpectedObject(), $this->basic),
+        );
     }
 
     public function getExpectedArray(): array
     {
-        $mergeKeys = function (string $parentProperty, array $childProperties) {
-            $result = [];
-            foreach ($childProperties as $childProperty => $value) {
-                $result["{$parentProperty}_{$childProperty}"] = $value;
-            }
-
-            return $result;
-        };
-
-        return [];
+        return [
+            'basic' => json_encode(array_map(
+                fn($b) => $b->getExpectedArray(),
+                $this->basic,
+            )),
+        ];
     }
 }

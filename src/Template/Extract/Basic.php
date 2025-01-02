@@ -16,17 +16,7 @@ trait Basic
         SerializationStrategyType::PipeDelimited->value => 'implode(\'|\', array_map(fn($value) => %s, %s))',
     ];
 
-    private readonly ArrayReference $arrayReference;
-    private readonly ObjectReference $objectReference;
 
-    public function __construct(
-        private readonly string $propertyName,
-        private readonly ?SerializationStrategyType $serialisationStrategy,
-        private readonly bool $nullable,
-    ) {
-        $this->arrayReference = new ArrayReference($this->propertyName);
-        $this->objectReference = new ObjectReference($this->propertyName);
-    }
 
     public function __toString(): string
     {
@@ -40,10 +30,10 @@ trait Basic
             $this->objectReference,
             $this->arrayReference,
             $this->serialisationStrategy === null ?
-                sprintf(self::EXTRACT_FORMAT, $this->objectReference) :
+                $this->getExtractFormat((string) $this->objectReference) :
                 sprintf(
                     self::SERIALISE[$this->serialisationStrategy->value],
-                    sprintf(self::EXTRACT_FORMAT, '$value'),
+                    $this->getExtractFormat('$value'),
                     $this->objectReference
                 )
         );

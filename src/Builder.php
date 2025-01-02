@@ -203,6 +203,7 @@ final class Builder
             ),
             HydrationStrategyType::Nest => new Template\Hydrate\Nest(
                 $propertyName,
+                $serialisationStrategy,
                 $typeName,
                 $nullable,
             ),
@@ -253,6 +254,7 @@ final class Builder
             ),
             HydrationStrategyType::Nest => new Template\Extract\Nest(
                 $propertyName,
+                $serialisationStrategy,
                 $typeName,
                 $nullable,
             ),
