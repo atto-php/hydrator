@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 final class FunctionalTest extends TestCase
 {
     private const FIXTURES = [
-        // @TODO Fix subtypes in order to support enums
+        Fixture\WithParents\WithScalars::class,
         Fixture\WithArrays\OfEnums\IntBacked::class,
         Fixture\WithArrays\OfEnums\StringBacked::class,
         Fixture\WithArrays\OfObjects\WithScalars\Bools::class,

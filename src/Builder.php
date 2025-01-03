@@ -73,7 +73,6 @@ final class Builder
                 ) {
                     throw StrategyNotApplicable::passthroughHydrationCannotSerialise($propertyName);
                 }
-
             } else {
                 if ($this->getSubtype($property) !== null) {
                     throw AttributeNotApplicable::subtype($typeName, $propertyName);
