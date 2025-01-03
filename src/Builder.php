@@ -37,7 +37,14 @@ final class Builder
             $class
         );
 
-        foreach ($refl->getProperties() as $property) {
+        $properties = $refl->getProperties();
+        $parent = $refl->getParentClass();
+        while ($parent) {
+            $properties = array_merge($properties, $parent->getProperties());
+            $parent = $parent->getParentClass();
+        }
+
+        foreach ($properties as $property) {
             $propertyName = $property->getName();
 
             $type = $property->getType() ??
@@ -73,7 +80,6 @@ final class Builder
                 ) {
                     throw StrategyNotApplicable::passthroughHydrationCannotSerialise($propertyName);
                 }
-
             } else {
                 if ($this->getSubtype($property) !== null) {
                     throw AttributeNotApplicable::subtype($typeName, $propertyName);
