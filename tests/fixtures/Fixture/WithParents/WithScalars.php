@@ -2,25 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Atto\Hydrator\TestFixtures\Fixture\WithScalars;
+namespace Atto\Hydrator\TestFixtures\Fixture\WithParents;
 
-use Atto\Hydrator\TestFixtures\Fixture;
+use Atto\Hydrator\TestFixtures\Fixture\WithScalars\Bools;
 
-class Bools implements Fixture
+final class WithScalars extends Bools
 {
-    protected bool $unset;
-    protected ?bool $unsetNullable;
-
-    public function __construct(
-        protected bool $basic,
-        protected ?bool $nullable,
-        protected bool $withDefault = true,
-        protected ?bool $nullableWithDefault = false,
-        protected ?bool $nullableWithNullDefault = null,
-    ) {
-    }
-
-    /** @return Bools[] */
+    /** @return WithScalars[] */
     public static function getExampleObjects(): array
     {
         return [
@@ -31,7 +19,7 @@ class Bools implements Fixture
         ];
     }
 
-    public function getExpectedObject(): Bools
+    public function getExpectedObject(): WithScalars
     {
         $expectedObject = clone $this;
         $expectedObject->unsetNullable = null;
