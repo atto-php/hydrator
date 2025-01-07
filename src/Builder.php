@@ -16,6 +16,7 @@ use Atto\Hydrator\Exception\TypeHintException;
 use Atto\Hydrator\Template\Closure;
 use Atto\Hydrator\Template\HydratorClass;
 use ReflectionClass;
+use ReflectionProperty;
 
 final class Builder
 {
@@ -26,8 +27,6 @@ final class Builder
 
         $refl = new ReflectionClass($class);
 
-        $extractCode = new Closure($class);
-        $hydrateCode = new Closure($class);
         $hydratorClass = new HydratorClass(
             ClassName::fromFullyQualifiedName($class . 'Hydrator')
                 ->removeNamespacePrefix($commonNamespace)
@@ -35,82 +34,101 @@ final class Builder
             $class
         );
 
-        foreach ($refl->getProperties() as $property) {
-            $propertyName = $property->getName();
+        $isParent = false;
 
-            $type = $property->getType() ??
-                throw TypeHintException::missing($propertyName);
+        do {
+            $extractCode = new Closure('\\' . $refl->getName());
+            $hydrateCode = new Closure('\\' . $refl->getName());
 
-            if (!($type instanceof \ReflectionNamedType)) {
-                throw TypeHintException::unsupported($propertyName);
+            /**
+             * getProperties returns all public|protected parent properties.
+             * To avoid duplicates statements parents only want their private properties.
+             */
+            $properties = $refl->getProperties($isParent ? ReflectionProperty::IS_PRIVATE : null);
+
+            foreach ($properties as $property) {
+                $propertyName = $property->getName();
+
+                $type = $property->getType() ??
+                    throw TypeHintException::missing($propertyName);
+
+                if (!($type instanceof \ReflectionNamedType)) {
+                    throw TypeHintException::unsupported($propertyName);
+                }
+
+                $typeName = $type->getName();
+                $serialisationStrategy = null;
+
+                if ($typeName === 'array') {
+                    $typeName = $this->getSubtype($property) ??
+                        throw AttributeRequired::subtype($typeName, $propertyName);
+
+                    $serialisationStrategy = $this->getSerialisationStrategy($property);
+                    $hydrationStrategy = $this->getHydrationStrategy($property) ??
+                        $this->typeNameToHydrationStrategy($this->getSubtype($property));
+
+                    if ($hydrationStrategy === HydrationStrategyType::Json) {
+                        throw StrategyNotApplicable::collectionCannotUseJsonHydration($propertyName);
+                    }
+
+                    if ($hydrationStrategy === HydrationStrategyType::Merge) {
+                        throw StrategyNotApplicable::collectionCannotUseMergeHydration($propertyName);
+                    }
+
+                    if (
+                        $hydrationStrategy === HydrationStrategyType::Passthrough
+                        && $this->hasSerialisationStrategy($property)
+                    ) {
+                        throw StrategyNotApplicable::passthroughHydrationCannotSerialise($propertyName);
+                    }
+                } else {
+                    if ($this->getSubtype($property) !== null) {
+                        throw AttributeNotApplicable::subtype($typeName, $propertyName);
+                    }
+
+                    if ($this->hasSerialisationStrategy($property)) {
+                        throw AttributeNotApplicable::serialisationStrategy($typeName, $propertyName);
+                    }
+
+                    $hydrationStrategy = $this->getHydrationStrategy($property) ??
+                        $this->typeNameToHydrationStrategy($typeName);
+                }
+
+                $hydrateCode->addPropertyAccessor(
+                    $this->hydrateFor(
+                        $typeName,
+                        $propertyName,
+                        $hydrationStrategy,
+                        $serialisationStrategy,
+                        $property->getType()->allowsNull(),
+                    ),
+                );
+                $extractCode->addPropertyAccessor(
+                    $this->extractFor(
+                        $typeName,
+                        $propertyName,
+                        $hydrationStrategy,
+                        $serialisationStrategy,
+                        $property->getType()->allowsNull(),
+                    ),
+                );
+
+                if ($hydrationStrategy->requiresSubHydrator()) {
+                    $className = ClassName::fromFullyQualifiedName($typeName);
+                    $hydratorName = $className->removeNamespacePrefix($commonNamespace)
+                        ->addNamespacePrefix($hydratorNamespace);
+                    $hydratorClass->addSubHydrator($className, $hydratorName);
+                }
+
+                $hydratorClass->addProperty($propertyName);
             }
+            $hydratorClass->addHydrateMethod($hydrateCode);
+            $hydratorClass->addExtractMethod($extractCode);
 
-            $typeName = $type->getName();
-            $serialisationStrategy = null;
+            $refl = $refl->getParentClass();
+            $isParent = true;
+        } while ($refl !== false);
 
-            if ($typeName === 'array') {
-                $typeName = $this->getSubtype($property) ??
-                    throw AttributeRequired::subtype($typeName, $propertyName);
-
-                $serialisationStrategy = $this->getSerialisationStrategy($property);
-                $hydrationStrategy = $this->getHydrationStrategy($property) ??
-                    $this->typeNameToHydrationStrategy($this->getSubtype($property))
-                ;
-
-                if ($hydrationStrategy === HydrationStrategyType::Json) {
-                    throw StrategyNotApplicable::collectionCannotUseJsonHydration($propertyName);
-                }
-
-                if ($hydrationStrategy === HydrationStrategyType::Merge) {
-                    throw StrategyNotApplicable::collectionCannotUseMergeHydration($propertyName);
-                }
-
-                if (
-                    $hydrationStrategy === HydrationStrategyType::Passthrough
-                    && $this->hasSerialisationStrategy($property)
-                ) {
-                    throw StrategyNotApplicable::passthroughHydrationCannotSerialise($propertyName);
-                }
-            } else {
-                if ($this->getSubtype($property) !== null) {
-                    throw AttributeNotApplicable::subtype($typeName, $propertyName);
-                }
-
-                if ($this->hasSerialisationStrategy($property)) {
-                    throw AttributeNotApplicable::serialisationStrategy($typeName, $propertyName);
-                }
-
-                $hydrationStrategy = $this->getHydrationStrategy($property) ??
-                    $this->typeNameToHydrationStrategy($typeName)
-                ;
-            }
-
-            $hydrateCode->addPropertyAccessor($this->hydrateFor(
-                $typeName,
-                $propertyName,
-                $hydrationStrategy,
-                $serialisationStrategy,
-                $property->getType()->allowsNull(),
-            ));
-            $extractCode->addPropertyAccessor($this->extractFor(
-                $typeName,
-                $propertyName,
-                $hydrationStrategy,
-                $serialisationStrategy,
-                $property->getType()->allowsNull(),
-            ));
-
-            if ($hydrationStrategy->requiresSubHydrator()) {
-                $className = ClassName::fromFullyQualifiedName($typeName);
-                $hydratorName = $className->removeNamespacePrefix($commonNamespace)
-                    ->addNamespacePrefix($hydratorNamespace);
-                $hydratorClass->addSubHydrator($className, $hydratorName);
-            }
-            $hydratorClass->addProperty($propertyName);
-        }
-
-        $hydratorClass->addHydrateMethod($hydrateCode);
-        $hydratorClass->addExtractMethod($extractCode);
 
         return $hydratorClass;
     }
@@ -148,6 +166,9 @@ final class Builder
         return $reflectionAttribute->newInstance()->type;
     }
 
+    /**
+     * @param class-string $typeName
+     */
     private function typeNameToHydrationStrategy(string $typeName): HydrationStrategyType
     {
         if (in_array($typeName, ['float', 'int', 'string', 'bool', 'array'])) {
