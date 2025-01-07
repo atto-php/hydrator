@@ -26,14 +26,12 @@ final class Builder
 
         $refl = new ReflectionClass($class);
 
-        $hydratorClassName = ClassName::fromFullyQualifiedName($class . 'Hydrator')
-            ->removeNamespacePrefix($commonNamespace)
-            ->addNamespacePrefix($hydratorNamespace);
-
         $extractCode = new Closure($class);
         $hydrateCode = new Closure($class);
         $hydratorClass = new HydratorClass(
-            $hydratorClassName,
+            ClassName::fromFullyQualifiedName($class . 'Hydrator')
+                ->removeNamespacePrefix($commonNamespace)
+                ->addNamespacePrefix($hydratorNamespace),
             $class
         );
 
