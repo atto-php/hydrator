@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Atto\Hydrator\TestFixtures\Fixture\WithEnums;
 
+use Atto\Hydrator\Attribute\Hydratable;
 use Atto\Hydrator\Attribute\HydrationStrategy;
 use Atto\Hydrator\Attribute\HydrationStrategyType;
 use Atto\Hydrator\TestFixtures\Fixture;
 use Atto\Hydrator\TestFixtures\Mocks\Enums\StringDummy;
 
+#[Hydratable]
 final class StringBacked implements Fixture
 {
     private StringDummy $unset;

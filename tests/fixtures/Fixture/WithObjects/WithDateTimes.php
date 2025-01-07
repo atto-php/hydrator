@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Atto\Hydrator\TestFixtures\Fixture\WithObjects;
 
-use Atto\Hydrator\{TestFixtures\Fixture};
-use Atto\Hydrator\Attribute\SerializationStrategy;
-use Atto\Hydrator\Attribute\SerializationStrategyType;
+use Atto\Hydrator\{Attribute\Hydratable, TestFixtures\Fixture};
 
+#[Hydratable]
 final class WithDateTimes implements Fixture
 {
     public function __construct(

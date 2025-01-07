@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Atto\Hydrator\TestFixtures\Fixture\WithArrays\OfEnums;
 
+use Atto\Hydrator\Attribute\Hydratable;
 use Atto\Hydrator\Attribute\SerializationStrategy;
 use Atto\Hydrator\Attribute\SerializationStrategyType;
 use Atto\Hydrator\Attribute\Subtype;
 use Atto\Hydrator\TestFixtures\Fixture;
 use Atto\Hydrator\TestFixtures\Mocks\Enums\StringDummy;
 
+#[Hydratable]
 final class StringBacked implements Fixture
 {
     public function __construct(
