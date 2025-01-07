@@ -8,10 +8,10 @@ use Atto\Hydrator\Attribute\Hydratable;
 use Atto\Hydrator\TestFixtures\Fixture;
 
 #[Hydratable]
-final class Bools implements Fixture
+class Bools implements Fixture
 {
     private bool $unset;
-    private ?bool $unsetNullable;
+    protected ?bool $unsetNullable;
 
     public function __construct(
         private bool $basic,
