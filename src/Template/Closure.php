@@ -12,7 +12,7 @@ final class Closure
         EOF;
 
 
-    private array $propertyAccessors;
+    private array $propertyAccessors = [];
 
     public function __construct(
         private readonly string $className
