@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Atto\Hydrator\TestFixtures\Fixture\WithArrays\OfObjects\WithScalars;
 
+use Atto\Hydrator\Attribute\Hydratable;
 use Atto\Hydrator\Attribute\HydrationStrategy;
 use Atto\Hydrator\Attribute\HydrationStrategyType;
 use Atto\Hydrator\Attribute\Subtype;
 use Atto\Hydrator\TestFixtures\Fixture;
 use RuntimeException;
 
+#[Hydratable]
 final class Bools implements Fixture
 {
     /**

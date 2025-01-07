@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Atto\Hydrator\TestFixtures\Fixture\WithObjects\WithScalars;
 
+use Atto\Hydrator\Attribute\Hydratable;
 use Atto\Hydrator\Attribute\HydrationStrategy;
 use Atto\Hydrator\Attribute\HydrationStrategyType;
 use Atto\Hydrator\TestFixtures\Fixture;
 
+#[Hydratable]
 final class Floats implements Fixture
 {
     public function __construct(

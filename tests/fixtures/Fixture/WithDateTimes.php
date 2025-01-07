@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Atto\Hydrator\TestFixtures\Fixture;
 
+use Atto\Hydrator\Attribute\Hydratable;
 use Atto\Hydrator\Attribute\HydrationStrategy;
 use Atto\Hydrator\Attribute\HydrationStrategyType;
 use Atto\Hydrator\TestFixtures\Fixture;
 use DateTime;
 
+#[Hydratable]
 final class WithDateTimes implements Fixture
 {
     private DateTime $unset;

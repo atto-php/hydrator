@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Atto\Hydrator\TestFixtures\Fixture\WithScalars;
 
+use Atto\Hydrator\Attribute\Hydratable;
 use Atto\Hydrator\TestFixtures\Fixture;
 
+#[Hydratable]
 final class Floats implements Fixture
 {
     private float $unset;
