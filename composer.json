@@ -14,7 +14,7 @@
     "doctrine/instantiator": "^2.0",
     "atto/codegen-tools": "dev-main",
     "roave/better-reflection": "^6.25",
-    "symfony/console": "^6.4"
+    "symfony/console": "^6.4 || ^7.0"
   },
   "require-dev": {
     "phpstan/phpstan": "^1.12.6",
