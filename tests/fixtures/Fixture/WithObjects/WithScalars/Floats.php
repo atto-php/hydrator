@@ -105,9 +105,15 @@ final class Floats implements Fixture
                 null,
             ...$mergeKeys('mergeHydrationStrategy', $this->mergeHydrationStrategy
                 ->getExpectedArray()),
-            ...isset($this->nullableMergeHydrationStrategy) ?
-                $mergeKeys('nullableMergeHydrationStrategy', $this->nullableMergeHydrationStrategy->getExpectedArray()) :
-                ['nullableMergeHydrationStrategy' => null],
+            ...isset($this->nullableMergeHydrationStrategy)
+                ? [
+                    'nullableMergeHydrationStrategy' => true,
+                    ...$mergeKeys(
+                        'nullableMergeHydrationStrategy',
+                        $this->nullableMergeHydrationStrategy->getExpectedArray(),
+                    )
+                ]
+                : ['nullableMergeHydrationStrategy' => null],
             'nestHydrationStrategy' =>
                 $this->nestHydrationStrategy->getExpectedArray(),
             'nullableNestHydrationStrategy' => isset($this->nullableNestHydrationStrategy) ?

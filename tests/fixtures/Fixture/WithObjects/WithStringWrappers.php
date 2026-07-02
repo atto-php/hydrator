@@ -46,7 +46,12 @@ final class WithStringWrappers implements Fixture
 
         return [
             ...$mergeKeys('basic', $this->basic->getExpectedArray()),
-            ...isset($this->nullable) ? $mergeKeys('nullable', $this->nullable->getExpectedArray()) : [],
+            ...isset($this->nullable)
+                ? [
+                    'nullable' => true,
+                    ...$mergeKeys('nullable', $this->nullable->getExpectedArray()),
+                ]
+                : [],
         ];
     }
 }

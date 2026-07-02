@@ -16,7 +16,7 @@ final class Merge
             if (array_key_exists($dataKey, $values)) {
                 $hydrateData[$key] = $values[$dataKey];
             }
-        }  
+        }
     EOF;
 
     private ObjectReference $objectReference;
@@ -32,15 +32,22 @@ final class Merge
     public function __toString(): string
     {
         if ($this->nullable) {
-            $format = 'if (!array_key_exists(\'%1$s\', $values)) {' .
-                '%4$s' .
-                '%2$s = $hydrate[\%3$s::class]($hydrateData);' .
-                '} else {' .
-                '%2$s = null;' .
-                '}';
+            $format = <<<'PHP'
+                if (
+                    !array_key_exists('%1$s', $values)
+                    || (bool) $values['%1$s'] === true
+                ) {
+                    %4$s
+                    %2$s = $hydrate[\%3$s::class]($hydrateData);
+                } else {
+                    %2$s = null;
+                }
+                PHP;
         } else {
-            $format = '%4$s' . '
-            %2$s = $hydrate[\%3$s::class]($hydrateData);';
+            $format = <<<'PHP'
+                %4$s
+                %2$s = $hydrate[\%3$s::class]($hydrateData);
+                PHP;
         }
 
         return sprintf(

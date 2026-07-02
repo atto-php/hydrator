@@ -29,9 +29,21 @@ final class Merge
 
     public function __toString(): string
     {
-        $format = "if (isset($this->objectReference)) { %s }";
         if ($this->nullable) {
-            $format .= "else { $this->arrayReference = null; }";
+            $format = <<<PHP
+                if (isset($this->objectReference)) {
+                    $this->arrayReference = true;
+                    %s
+                } else {
+                    $this->arrayReference = false;
+                }
+                PHP;
+        } else {
+            $format = <<<PHP
+                if (isset($this->objectReference)) {
+                    %s
+                }
+                PHP;
         }
 
         return sprintf(
