@@ -14,10 +14,10 @@ final class WithScalars extends Bools
     public static function getExampleObjects(): array
     {
         return [
-            'false' => new self(...array_fill(0, 5, false)),
-            'true' => new self(...array_fill(0, 5, true)),
-            'set nullable bools to null' => new self(true, null, false, null, null),
-            'rely on defaults' => new self(true, false),
+            'false' => new self(...array_fill(0, 6, false)),
+            'true' => new self(...array_fill(0, 6, true)),
+            'set nullable bools to null' => new self(true, true, null, false, null, null),
+            'rely on defaults' => new self(true, true, false),
         ];
     }
 

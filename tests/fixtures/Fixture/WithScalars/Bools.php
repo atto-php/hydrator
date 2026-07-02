@@ -15,6 +15,7 @@ class Bools implements Fixture
 
     public function __construct(
         private bool $basic,
+        private(set) bool $privateSet,
         private ?bool $nullable,
         private bool $withDefault = true,
         private ?bool $nullableWithDefault = false,
@@ -26,10 +27,10 @@ class Bools implements Fixture
     public static function getExampleObjects(): array
     {
         return [
-            'false' => new self(...array_fill(0, 5, false)),
-            'true' => new self(...array_fill(0, 5, true)),
-            'set nullable bools to null' => new self(true, null, false, null, null),
-            'rely on defaults' => new self(true, false),
+            'false' => new self(...array_fill(0, 6, false)),
+            'true' => new self(...array_fill(0, 6, true)),
+            'set nullable bools to null' => new self(true, true, null, false, null, null),
+            'rely on defaults' => new self(true, true, false),
         ];
     }
 
@@ -47,6 +48,7 @@ class Bools implements Fixture
             // unset will not be extracted
             'unsetNullable' => null,
             'basic' => $this->basic,
+            'privateSet' => $this->privateSet,
             'nullable' => $this->nullable,
             'withDefault' => $this->withDefault,
             'nullableWithDefault' => $this->nullableWithDefault,

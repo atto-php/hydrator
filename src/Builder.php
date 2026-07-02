@@ -34,8 +34,6 @@ final class Builder
             $class
         );
 
-        $isParent = false;
-
         do {
             $extractCode = new Closure('\\' . $refl->getName());
             $hydrateCode = new Closure('\\' . $refl->getName());
@@ -44,9 +42,12 @@ final class Builder
              * getProperties returns all public|protected parent properties.
              * To avoid duplicates statements parents only want their private properties.
              */
-            $properties = $refl->getProperties($isParent ? ReflectionProperty::IS_PRIVATE : null);
+            $properties = $refl->getProperties();
 
             foreach ($properties as $property) {
+                if ($property->getDeclaringClass()->getName() !== $refl->getName()) {
+                    continue;
+                }
                 $propertyName = $property->getName();
 
                 $type = $property->getType() ??
@@ -126,7 +127,6 @@ final class Builder
             $hydratorClass->addExtractMethod($extractCode);
 
             $refl = $refl->getParentClass();
-            $isParent = true;
         } while ($refl !== false);
 
 
