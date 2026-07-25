@@ -37,6 +37,7 @@ final class FunctionalTest extends TestCase
         Fixture\WithScalars\Integers::class,
         Fixture\WithScalars\Strings::class,
         Fixture\WithStringWrappers::class,
+        Fixture\DoubleNesting\TopLevel::class,
     ];
 
     private static Builder $builder;

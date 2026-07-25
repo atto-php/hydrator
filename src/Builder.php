@@ -118,7 +118,7 @@ final class Builder
                     $className = ClassName::fromFullyQualifiedName($typeName);
                     $hydratorName = $className->removeNamespacePrefix($commonNamespace)
                         ->addNamespacePrefix($hydratorNamespace);
-                    $hydratorClass->addSubHydrator($className, $hydratorName);
+                    $hydratorClass->addSubHydrator($className, $hydratorName, $propertyName);
                 }
 
                 $hydratorClass->addProperty($propertyName);

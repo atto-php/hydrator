@@ -49,6 +49,13 @@ final class HydratorClass
                 %8$s
                 return $data;
             }
+            
+            public static function properties(): array
+            {
+                $properties = self::PROPERTIES;
+                %9$s
+                return $properties;
+            }
         }
         EOF;
 
@@ -83,13 +90,14 @@ final class HydratorClass
         return array_keys($this->subHydrators);
     }
 
-    public function addSubHydrator(ClassName $className, ClassName $hydratorName): void
+    public function addSubHydrator(ClassName $className, ClassName $hydratorName, string $propertyName): void
     {
         if (isset($this->subHydrators[$className->asString()])) {
+            $this->subHydrators[$className->asString()][2][] = $propertyName;
             return;
         }
 
-        $this->subHydrators[$className->asString()] = [$hydratorName, 'p' . ++$this->parameterCount];
+        $this->subHydrators[$className->asString()] = [$hydratorName, 'p' . ++$this->parameterCount, [$propertyName]];
     }
 
     public function addHydrateMethod(string|\Stringable $method): void
@@ -104,14 +112,24 @@ final class HydratorClass
 
     public function __toString(): string
     {
-        $constructorParameters = $constructorCode = $hydrateCode = $extractCode = '';
-        foreach ($this->subHydrators as $subHydrator => list($hydratorName, $parameterName)) {
+        $constructorParameters = $constructorCode = $hydrateCode = $extractCode = $propertyCode = '';
+        foreach ($this->subHydrators as $subHydrator => list($hydratorName, $parameterName, $propertyNames)) {
             $subHydratorTemplate = new SubHydrator($subHydrator, $parameterName);
             $constructorCode .= $subHydratorTemplate;
             $constructorParameters .= sprintf(
                 '%sHydrator $%s,',
                 $hydratorName->asString(),
                 $parameterName
+            );
+
+            $propCode = [];
+            foreach ($propertyNames as $propertyName) {
+                $propCode[] = sprintf('$properties[] = \'%s_\' . $property;', $propertyName);
+            }
+            $propertyCode .= sprintf(
+                'foreach(%1$sHydrator::properties() as $property) {%2$s}',
+                $hydratorName->asString(),
+                "\n" . implode("\n", $propCode)
             );
         }
 
@@ -145,7 +163,8 @@ final class HydratorClass
             $constructorCode,
             $this->targetClassName,
             $hydrateCode,
-            $extractCode
+            $extractCode,
+            $propertyCode,
         );
     }
 
