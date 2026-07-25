@@ -6,6 +6,10 @@ on:
     branches:
     tags:
 
+permissions:
+  checks: write
+  contents: read
+
 jobs:
   ci:
     uses: laminas/workflow-continuous-integration/.github/workflows/continuous-integration.yml@1.x

@@ -15,7 +15,7 @@ final class SubHydrator
     EOF;
 
     private const PROPERTIES = <<<'EOF'
-        $properties[%s::class] = $%2$s::PROPERTIES;       
+        $properties[%s::class] = $%2$s::properties();       
     EOF;
 
     public function __construct(
